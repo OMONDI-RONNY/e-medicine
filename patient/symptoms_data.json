@@ -1,0 +1,745 @@
+{
+    "symptoms": [
+      {
+        "diagnosis": "Flu",
+        "symptom": "fever, cough, body aches",
+        "prescription": "Rest, hydration, and over-the-counter medications for fever."
+      },
+      {
+        "diagnosis": "Cold",
+        "symptom": "runny nose, cough, sore throat",
+        "prescription": "Rest and hydration, consider antihistamines."
+      },
+      {
+        "diagnosis": "Headache",
+        "symptom": "headache, sensitivity to light, nausea",
+        "prescription": "Over-the-counter pain relievers and rest."
+      },
+      {
+        "diagnosis": "Stomach Bug",
+        "symptom": "nausea, vomiting, diarrhea",
+        "prescription": "Stay hydrated, rest, and consider over-the-counter remedies."
+      },
+      {
+        "diagnosis": "Allergies",
+        "symptom": "sneezing, itchy eyes, runny nose",
+        "prescription": "Antihistamines and avoiding allergens."
+      },
+      {
+        "diagnosis": "Migraine",
+        "symptom": "throbbing headache, nausea, sensitivity to light",
+        "prescription": "Rest in a dark room, hydration, and pain relievers."
+      },
+      {
+        "diagnosis": "Chickenpox",
+        "symptom": "itchy rash, fever, fatigue",
+        "prescription": "Calamine lotion for itching, hydration, and rest."
+      },
+      {
+        "diagnosis": "Gastroenteritis",
+        "symptom": "diarrhea, vomiting, stomach cramps",
+        "prescription": "Stay hydrated with clear fluids and rest."
+      },
+      {
+        "diagnosis": "Pneumonia",
+        "symptom": "cough, fever, shortness of breath",
+        "prescription": "Antibiotics, rest, and hydration."
+      },
+      {
+        "diagnosis": "Bronchitis",
+        "symptom": "cough, wheezing, chest discomfort",
+        "prescription": "Rest, hydration, and over-the-counter cough medicine."
+      },
+      {
+        "diagnosis": "Sinusitis",
+        "symptom": "facial pain, nasal congestion, headache",
+        "prescription": "Decongestants and saline nasal spray."
+      },
+      {
+        "diagnosis": "Strep Throat",
+        "symptom": "sore throat, fever, swollen lymph nodes",
+        "prescription": "Antibiotics and pain relievers."
+      },
+      {
+        "diagnosis": "Tonsillitis",
+        "symptom": "sore throat, difficulty swallowing, fever",
+        "prescription": "Rest, hydration, and pain relievers."
+      },
+      {
+        "diagnosis": "Urinary Tract Infection (UTI)",
+        "symptom": "burning sensation while urinating, frequent urination",
+        "prescription": "Antibiotics and increased fluid intake."
+      },
+      {
+        "diagnosis": "Constipation",
+        "symptom": "infrequent bowel movements, abdominal pain",
+        "prescription": "Increase fiber intake and hydration."
+      },
+      {
+        "diagnosis": "Diarrhea",
+        "symptom": "frequent loose stools, abdominal cramps",
+        "prescription": "Stay hydrated and consider over-the-counter anti-diarrheal medication."
+      },
+      {
+        "diagnosis": "Acid Reflux",
+        "symptom": "heartburn, regurgitation, difficulty swallowing",
+        "prescription": "Antacids and avoiding trigger foods."
+      },
+      {
+        "diagnosis": "Food Poisoning",
+        "symptom": "nausea, vomiting, stomach cramps",
+        "prescription": "Stay hydrated and rest."
+      },
+      {
+        "diagnosis": "Anxiety",
+        "symptom": "nervousness, rapid heartbeat, sweating",
+        "prescription": "Relaxation techniques and consider therapy."
+      },
+      {
+        "diagnosis": "Depression",
+        "symptom": "persistent sadness, loss of interest, fatigue",
+        "prescription": "Therapy and possibly antidepressants."
+      },
+      {
+        "diagnosis": "Insomnia",
+        "symptom": "difficulty sleeping, fatigue during the day",
+        "prescription": "Sleep hygiene practices and possibly medication."
+      },
+      {
+        "diagnosis": "Hypertension",
+        "symptom": "often no symptoms but can include headaches",
+        "prescription": "Lifestyle changes and possibly antihypertensive medications."
+      },
+      {
+        "diagnosis": "Asthma",
+        "symptom": "shortness of breath, wheezing, coughing",
+        "prescription": "Inhalers and avoiding triggers."
+      },
+      {
+        "diagnosis": "Eczema",
+        "symptom": "itchy, inflamed skin",
+        "prescription": "Moisturizers and topical corticosteroids."
+      },
+      {
+        "diagnosis": "Psoriasis",
+        "symptom": "red patches of skin, itching, soreness",
+        "prescription": "Topical treatments and phototherapy."
+      },
+      {
+        "diagnosis": "Acne",
+        "symptom": "pimples, oily skin, scarring",
+        "prescription": "Topical treatments and possibly oral medications."
+      },
+      {
+        "diagnosis": "Dermatitis",
+        "symptom": "itchy, red rash, swelling",
+        "prescription": "Topical corticosteroids and avoiding irritants."
+      },
+      {
+        "diagnosis": "Osteoarthritis",
+        "symptom": "joint pain, stiffness, swelling",
+        "prescription": "Pain relievers and physical therapy."
+      },
+      {
+        "diagnosis": "Rheumatoid Arthritis",
+        "symptom": "joint pain, swelling, fatigue",
+        "prescription": "Disease-modifying antirheumatic drugs (DMARDs) and pain relievers."
+      },
+      {
+        "diagnosis": "Gout",
+        "symptom": "intense joint pain, swelling, redness",
+        "prescription": "Avoid purine-rich foods and consider medications."
+      },
+      {
+        "diagnosis": "Sciatica",
+        "symptom": "lower back pain, numbness in legs",
+        "prescription": "Pain relievers and physical therapy."
+      },
+      {
+        "diagnosis": "Tension Headache",
+        "symptom": "mild to moderate headache, tightness",
+        "prescription": "Rest, hydration, and over-the-counter pain relievers."
+      },
+      {
+        "diagnosis": "Cluster Headache",
+        "symptom": "severe pain on one side of the head",
+        "prescription": "Avoid triggers and consider medications."
+      },
+      {
+        "diagnosis": "Sinus Headache",
+        "symptom": "pain in the forehead, cheeks, and eyes",
+        "prescription": "Decongestants and pain relievers."
+      },
+      {
+        "diagnosis": "Celiac Disease",
+        "symptom": "bloating, diarrhea, abdominal pain after eating gluten",
+        "prescription": "Strict gluten-free diet."
+      },
+      {
+        "diagnosis": "Irritable Bowel Syndrome (IBS)",
+        "symptom": "abdominal pain, bloating, diarrhea, constipation",
+        "prescription": "Dietary changes and possibly medications."
+      },
+      {
+        "diagnosis": "Crohn's Disease",
+        "symptom": "abdominal pain, diarrhea, fatigue",
+        "prescription": "Medications and dietary adjustments."
+      },
+      {
+        "diagnosis": "Ulcerative Colitis",
+        "symptom": "abdominal pain, diarrhea, rectal bleeding",
+        "prescription": "Medications and dietary changes."
+      },
+      {
+        "diagnosis": "Diverticulitis",
+        "symptom": "abdominal pain, fever, constipation",
+        "prescription": "Antibiotics and dietary adjustments."
+      },
+      {
+        "diagnosis": "Hepatitis",
+        "symptom": "fatigue, jaundice, abdominal pain",
+        "prescription": "Rest and possible antiviral medications."
+      },
+      {
+        "diagnosis": "Cholecystitis",
+        "symptom": "abdominal pain, nausea, vomiting",
+        "prescription": "Surgery may be necessary."
+      },
+      {
+        "diagnosis": "Gallstones",
+        "symptom": "sudden pain in the upper right abdomen",
+        "prescription": "Dietary adjustments and possibly surgery."
+      },
+      {
+        "diagnosis": "Peptic Ulcer",
+        "symptom": "abdominal pain, bloating, nausea",
+        "prescription": "Antacids and possible antibiotics."
+      },
+      {
+        "diagnosis": "Kidney Stones",
+        "symptom": "severe pain in the side or back, blood in urine",
+        "prescription": "Increase fluid intake and possible medications."
+      },
+      {
+        "diagnosis": "Hyperthyroidism",
+        "symptom": "weight loss, rapid heartbeat, anxiety",
+        "prescription": "Medications to manage symptoms."
+      },
+      {
+        "diagnosis": "Hypothyroidism",
+        "symptom": "fatigue, weight gain, cold intolerance",
+        "prescription": "Thyroid hormone replacement."
+      },
+      {
+        "diagnosis": "Anemia",
+        "symptom": "fatigue, weakness, pale skin",
+        "prescription": "Iron supplements and dietary changes."
+      },
+      {
+        "diagnosis": "Vitamin D Deficiency",
+        "symptom": "fatigue, bone pain, muscle weakness",
+        "prescription": "Vitamin D supplements and sunlight exposure."
+      },
+      {
+        "diagnosis": "Chronic Fatigue Syndrome",
+        "symptom": "persistent fatigue, sleep disturbances",
+        "prescription": "Lifestyle changes and possible therapy."
+      },
+      {
+        "diagnosis": "Fibromyalgia",
+        "symptom": "widespread pain, fatigue, sleep disturbances",
+        "prescription": "Pain relievers and lifestyle modifications."
+      },
+      {
+        "diagnosis": "Multiple Sclerosis",
+        "symptom": "numbness, weakness, coordination issues",
+        "prescription": "Disease-modifying therapies and symptom management."
+      },
+      {
+        "diagnosis": "Parkinson's Disease",
+        "symptom": "tremors, stiffness, difficulty with balance",
+        "prescription": "Medications to manage symptoms."
+      },
+      {
+        "diagnosis": "Alzheimer's Disease",
+        "symptom": "memory loss, confusion, difficulty with daily tasks",
+        "prescription": "Medications for symptom management and supportive care."
+      },
+      {
+        "diagnosis": "Dementia",
+        "symptom": "memory loss, confusion, personality changes",
+        "prescription": "Supportive care and possibly medications."
+      },
+      {
+        "diagnosis": "Autism Spectrum Disorder",
+        "symptom": "difficulty with communication, social interaction",
+        "prescription": "Therapy and educational support."
+      },
+      {
+        "diagnosis": "Attention Deficit Hyperactivity Disorder (ADHD)",
+        "symptom": "inattention, hyperactivity, impulsivity",
+        "prescription": "Behavioral therapy and possibly medication."
+      },
+      {
+        "diagnosis": "Post-Traumatic Stress Disorder (PTSD)",
+        "symptom": "flashbacks, anxiety, avoidance behavior",
+        "prescription": "Therapy and possibly medication."
+      },
+      {
+        "diagnosis": "Obsessive-Compulsive Disorder (OCD)",
+        "symptom": "obsessions, compulsions, anxiety",
+        "prescription": "Therapy and possibly medication."
+      },
+      {
+        "diagnosis": "Bipolar Disorder",
+        "symptom": "mood swings, depression, mania",
+        "prescription": "Mood stabilizers and therapy."
+      },
+      {
+        "diagnosis": "Schizophrenia",
+        "symptom": "delusions, hallucinations, disorganized thinking",
+        "prescription": "Antipsychotic medications and therapy."
+      },
+      {
+        "diagnosis": "Angina",
+        "symptom": "chest pain, shortness of breath, fatigue",
+        "prescription": "Medications and lifestyle changes."
+      },
+      {
+        "diagnosis": "Myocardial Infarction",
+        "symptom": "chest pain, shortness of breath, sweating",
+        "prescription": "Emergency treatment and rehabilitation."
+      },
+      {
+        "diagnosis": "Congestive Heart Failure",
+        "symptom": "shortness of breath, fatigue, swelling",
+        "prescription": "Medications and lifestyle changes."
+      },
+      {
+        "diagnosis": "Peripheral Artery Disease",
+        "symptom": "leg pain, weakness, numbness",
+        "prescription": "Lifestyle changes and possibly medications."
+      },
+      {
+        "diagnosis": "Atrial Fibrillation",
+        "symptom": "irregular heartbeat, fatigue, shortness of breath",
+        "prescription": "Medications and possibly cardioversion."
+      },
+      {
+        "diagnosis": "Stroke",
+        "symptom": "sudden numbness, confusion, trouble speaking",
+        "prescription": "Emergency treatment is crucial."
+      },
+      {
+        "diagnosis": "Kidney Failure",
+        "symptom": "fatigue, swelling, changes in urination",
+        "prescription": "Dialysis or possible transplant."
+      },
+      {
+        "diagnosis": "Liver Cirrhosis",
+        "symptom": "fatigue, jaundice, swelling",
+        "prescription": "Manage symptoms and possibly transplant."
+      },
+      {
+        "diagnosis": "Psoriatic Arthritis",
+        "symptom": "joint pain, psoriasis, fatigue",
+        "prescription": "Medications and physical therapy."
+      },
+      {
+        "diagnosis": "Systemic Lupus Erythematosus",
+        "symptom": "fatigue, joint pain, skin rashes",
+        "prescription": "Medications to manage symptoms."
+      },
+      {
+        "diagnosis": "Scleroderma",
+        "symptom": "skin thickening, joint pain, fatigue",
+        "prescription": "Medications to manage symptoms."
+      },
+      {
+        "diagnosis": "Sarcoidosis",
+        "symptom": "fatigue, cough, skin rashes",
+        "prescription": "Medications to manage symptoms."
+      },
+      {
+        "diagnosis": "Hypoparathyroidism",
+        "symptom": "muscle cramps, tingling, fatigue",
+        "prescription": "Calcium and vitamin D supplements."
+      },
+      {
+        "diagnosis": "Hyperparathyroidism",
+        "symptom": "weakness, fatigue, bone pain",
+        "prescription": "Surgery may be necessary."
+      },
+      {
+        "diagnosis": "Osteoporosis",
+        "symptom": "bone fractures, loss of height",
+        "prescription": "Calcium and vitamin D supplements and exercise."
+      },
+      {
+        "diagnosis": "Chronic Obstructive Pulmonary Disease (COPD)",
+        "symptom": "shortness of breath, wheezing, chronic cough",
+        "prescription": "Inhalers and pulmonary rehabilitation."
+      },
+      {
+        "diagnosis": "Emphysema",
+        "symptom": "shortness of breath, chronic cough",
+        "prescription": "Avoid smoking and consider medications."
+      },
+      {
+        "diagnosis": "Chronic Bronchitis",
+        "symptom": "cough with mucus, shortness of breath",
+        "prescription": "Avoid smoking and consider medications."
+      },
+      {
+        "diagnosis": "Cystic Fibrosis",
+        "symptom": "persistent cough, lung infections, difficulty breathing",
+        "prescription": "Medications and therapies to manage symptoms."
+      },
+      {
+        "diagnosis": "Lung Cancer",
+        "symptom": "persistent cough, weight loss, chest pain",
+        "prescription": "Treatment depends on stage and may include chemotherapy."
+      },
+      {
+        "diagnosis": "Thyroid Nodules",
+        "symptom": "often no symptoms, can cause difficulty swallowing",
+        "prescription": "Monitoring or possible surgery."
+      },
+      {
+        "diagnosis": "Cushing's Syndrome",
+        "symptom": "weight gain, thinning skin, fatigue",
+        "prescription": "Treat underlying cause and manage symptoms."
+      },
+      {
+        "diagnosis": "Addison's Disease",
+        "symptom": "fatigue, weight loss, low blood pressure",
+        "prescription": "Hormone replacement therapy."
+      },
+      {
+        "diagnosis": "Diabetes Mellitus Type 1",
+        "symptom": "increased thirst, frequent urination, fatigue",
+        "prescription": "Insulin therapy and dietary management."
+      },
+      {
+        "diagnosis": "Diabetes Mellitus Type 2",
+        "symptom": "increased thirst, frequent urination, fatigue",
+        "prescription": "Dietary changes and possible oral medications."
+      },
+      {
+        "diagnosis": "Gestational Diabetes",
+        "symptom": "often no symptoms, detected during pregnancy",
+        "prescription": "Dietary changes and monitoring."
+      },
+      {
+        "diagnosis": "Hypoglycemia",
+        "symptom": "shakiness, sweating, confusion",
+        "prescription": "Quick source of sugar and monitoring."
+      },
+      {
+        "diagnosis": "Hyperglycemia",
+        "symptom": "increased thirst, frequent urination, fatigue",
+        "prescription": "Insulin or medication adjustments."
+      },
+      {
+        "diagnosis": "Urinary Incontinence",
+        "symptom": "involuntary leakage of urine",
+        "prescription": "Pelvic floor exercises and bladder training."
+      },
+      {
+        "diagnosis": "Menopause",
+        "symptom": "hot flashes, night sweats, mood changes",
+        "prescription": "Hormone replacement therapy and lifestyle adjustments."
+      },
+      {
+        "diagnosis": "Pregnancy",
+        "symptom": "missed period, nausea, fatigue",
+        "prescription": "Prenatal vitamins and regular check-ups."
+      },
+      {
+        "diagnosis": "Endometriosis",
+        "symptom": "pelvic pain, painful periods, fatigue",
+        "prescription": "Pain relief and possibly hormone therapy."
+      },
+      {
+        "diagnosis": "Polycystic Ovary Syndrome (PCOS)",
+        "symptom": "irregular periods, weight gain, acne",
+        "prescription": "Lifestyle changes and possibly medications."
+      },
+      {
+        "diagnosis": "Ectopic Pregnancy",
+        "symptom": "abdominal pain, vaginal bleeding",
+        "prescription": "Emergency treatment is crucial."
+      },
+      {
+        "diagnosis": "Cervical Cancer",
+        "symptom": "abnormal bleeding, pelvic pain",
+        "prescription": "Treatment depends on stage and may include chemotherapy."
+      },
+      {
+        "diagnosis": "Breast Cancer",
+        "symptom": "lump in breast, changes in breast shape",
+        "prescription": "Treatment depends on stage and may include chemotherapy."
+      },
+      {
+        "diagnosis": "Prostate Cancer",
+        "symptom": "difficulty urinating, pelvic pain",
+        "prescription": "Treatment depends on stage and may include chemotherapy."
+      },
+      {
+        "diagnosis": "Testicular Cancer",
+        "symptom": "lump in testicle, swelling",
+        "prescription": "Treatment depends on stage and may include chemotherapy."
+      },
+      {
+        "diagnosis": "Skin Cancer",
+        "symptom": "changes in skin, non-healing sores",
+        "prescription": "Treatment depends on stage and may include chemotherapy."
+      },
+      {
+        "diagnosis": "HIV/AIDS",
+        "symptom": "fatigue, weight loss, fever",
+        "prescription": "Antiretroviral therapy to manage symptoms."
+      },
+      {
+        "diagnosis": "Hepatitis B",
+        "symptom": "fatigue, jaundice, abdominal pain",
+        "prescription": "Manage symptoms and consider antiviral therapy."
+      },
+      {
+        "diagnosis": "Hepatitis C",
+        "symptom": "fatigue, jaundice, abdominal pain",
+        "prescription": "Antiviral therapy may be necessary."
+      },
+      {
+        "diagnosis": "Tuberculosis",
+        "symptom": "persistent cough, weight loss, night sweats",
+        "prescription": "Antibiotics for several months."
+      },
+      {
+        "diagnosis": "COVID-19",
+        "symptom": "fever, cough, difficulty breathing",
+        "prescription": "Rest, hydration, and follow public health guidelines."
+      },
+      {
+        "diagnosis": "Viral Meningitis",
+        "symptom": "fever, headache, stiff neck",
+        "prescription": "Rest and supportive care."
+      },
+      {
+        "diagnosis": "Bacterial Meningitis",
+        "symptom": "fever, headache, stiff neck",
+        "prescription": "Antibiotics and supportive care."
+      },
+      {
+        "diagnosis": "Sepsis",
+        "symptom": "fever, rapid heart rate, confusion",
+        "prescription": "Emergency treatment is crucial."
+      },
+      {
+        "diagnosis": "Encephalitis",
+        "symptom": "fever, headache, confusion",
+        "prescription": "Supportive care and possibly antiviral medications."
+      },
+      {
+        "diagnosis": "Croup",
+        "symptom": "cough, difficulty breathing, hoarseness",
+        "prescription": "Corticosteroids and supportive care."
+      },
+      {
+        "diagnosis": "Whooping Cough",
+        "symptom": "severe coughing fits, vomiting",
+        "prescription": "Antibiotics and supportive care."
+      },
+      {
+        "diagnosis": "Laryngitis",
+        "symptom": "hoarseness, loss of voice, sore throat",
+        "prescription": "Rest the voice and hydration."
+      },
+      {
+        "diagnosis": "Pharyngitis",
+        "symptom": "sore throat, fever, swollen glands",
+        "prescription": "Rest, hydration, and pain relievers."
+      },
+      {
+        "diagnosis": "Hypothermia",
+        "symptom": "shivering, confusion, fatigue",
+        "prescription": "Warmth and medical attention."
+      },
+      {
+        "diagnosis": "Heat Stroke",
+        "symptom": "high body temperature, confusion, rapid pulse",
+        "prescription": "Cool down and seek emergency medical help."
+      },
+      {
+        "diagnosis": "Sunburn",
+        "symptom": "red, painful skin, blistering",
+        "prescription": "Cool compresses and moisturizing lotion."
+      },
+      {
+        "diagnosis": "Allergic Reaction",
+        "symptom": "hives, itching, swelling",
+        "prescription": "Antihistamines and possibly corticosteroids."
+      },
+      {
+        "diagnosis": "Anaphylaxis",
+        "symptom": "difficulty breathing, swelling, hives",
+        "prescription": "Emergency treatment with epinephrine."
+      },
+      {
+        "diagnosis": "Frostbite",
+        "symptom": "numbness, pale skin, blisters",
+        "prescription": "Gradual warming and medical attention."
+      },
+      {
+        "diagnosis": "Acute Stress Reaction",
+        "symptom": "anxiety, panic attacks, disorientation",
+        "prescription": "Supportive therapy and relaxation techniques."
+      },
+      {
+        "diagnosis": "Chronic Stress",
+        "symptom": "irritability, fatigue, sleep disturbances",
+        "prescription": "Stress management techniques and possibly therapy."
+      },
+      {
+        "diagnosis": "Adjustment Disorder",
+        "symptom": "anxiety, depression, difficulty coping",
+        "prescription": "Supportive therapy."
+      },
+      {
+        "diagnosis": "Sleep Apnea",
+        "symptom": "snoring, gasping for air during sleep",
+        "prescription": "Lifestyle changes and possibly a CPAP machine."
+      },
+      {
+        "diagnosis": "Narcolepsy",
+        "symptom": "excessive daytime sleepiness, cataplexy",
+        "prescription": "Medications to manage symptoms."
+      },
+      {
+        "diagnosis": "Restless Legs Syndrome",
+        "symptom": "unpleasant sensations in legs, urge to move",
+        "prescription": "Lifestyle changes and possibly medications."
+      },
+      {
+        "diagnosis": "Panic Disorder",
+        "symptom": "sudden panic attacks, fear of losing control",
+        "prescription": "Therapy and possibly medications."
+      },
+      {
+        "diagnosis": "Social Anxiety Disorder",
+        "symptom": "intense fear in social situations, avoidance behavior",
+        "prescription": "Therapy and possibly medications."
+      },
+      {
+        "diagnosis": "Agoraphobia",
+        "symptom": "fear of open or crowded spaces, avoidance behavior",
+        "prescription": "Therapy and possibly medications."
+      },
+      {
+        "diagnosis": "Specific Phobia",
+        "symptom": "intense fear of specific object or situation",
+        "prescription": "Therapy and exposure techniques."
+      },
+      {
+        "diagnosis": "Intermittent Explosive Disorder",
+        "symptom": "recurrent aggressive outbursts",
+        "prescription": "Therapy and anger management techniques."
+      },
+      {
+        "diagnosis": "Conduct Disorder",
+        "symptom": "aggression, violation of rules, deceitfulness",
+        "prescription": "Therapy and behavior management strategies."
+      },
+      {
+        "diagnosis": "Oppositional Defiant Disorder",
+        "symptom": "angry outbursts, irritability, defiance",
+        "prescription": "Therapy and behavior management strategies."
+      },
+      {
+        "diagnosis": "Binge Eating Disorder",
+        "symptom": "recurrent episodes of binge eating",
+        "prescription": "Therapy and dietary management."
+      },
+      {
+        "diagnosis": "Bulimia Nervosa",
+        "symptom": "binge eating followed by purging",
+        "prescription": "Therapy and nutritional counseling."
+      },
+      {
+        "diagnosis": "Anorexia Nervosa",
+        "symptom": "extreme weight loss, fear of gaining weight",
+        "prescription": "Therapy and nutritional support."
+      },
+      {
+        "diagnosis": "Avoidant Personality Disorder",
+        "symptom": "social withdrawal, feelings of inadequacy",
+        "prescription": "Therapy and support."
+      },
+      {
+        "diagnosis": "Dependent Personality Disorder",
+        "symptom": "excessive need to be taken care of",
+        "prescription": "Therapy and support."
+      },
+      {
+        "diagnosis": "Narcissistic Personality Disorder",
+        "symptom": "grandiosity, need for admiration",
+        "prescription": "Therapy to improve self-awareness."
+      },
+      {
+        "diagnosis": "Paranoid Personality Disorder",
+        "symptom": "suspicion, distrust of others",
+        "prescription": "Therapy to improve relationships."
+      },
+      {
+        "diagnosis": "Schizoid Personality Disorder",
+        "symptom": "detachment from social relationships, restricted emotion",
+        "prescription": "Therapy to improve social skills."
+      },
+      {
+        "diagnosis": "Antisocial Personality Disorder",
+        "symptom": "disregard for others, deceitfulness",
+        "prescription": "Therapy and social support."
+      },
+      {
+        "diagnosis": "Borderline Personality Disorder",
+        "symptom": "unstable moods, intense relationships",
+        "prescription": "Therapy and possibly medications."
+      },
+      {
+        "diagnosis": "Histrionic Personality Disorder",
+        "symptom": "excessive emotionality, attention-seeking",
+        "prescription": "Therapy to improve self-awareness."
+      },
+      {
+        "diagnosis": "Dissociative Identity Disorder",
+        "symptom": "presence of two or more distinct identities",
+        "prescription": "Therapy to integrate identities."
+      },
+      {
+        "diagnosis": "Dissociative Amnesia",
+        "symptom": "inability to recall personal information",
+        "prescription": "Therapy to recover memories."
+      },
+      {
+        "diagnosis": "Somatic Symptom Disorder",
+        "symptom": "physical symptoms without a medical explanation",
+        "prescription": "Therapy to manage symptoms."
+      },
+      {
+        "diagnosis": "Illness Anxiety Disorder",
+        "symptom": "preoccupation with having a serious illness",
+        "prescription": "Therapy to manage anxiety."
+      },
+      {
+        "diagnosis": "Factitious Disorder",
+        "symptom": "falsification of symptoms for attention",
+        "prescription": "Therapy to address underlying issues."
+      },
+      {
+        "diagnosis": "Conversion Disorder",
+        "symptom": "neurological symptoms without a medical explanation",
+        "prescription": "Therapy to manage symptoms."
+      }
+    ]
+  }
+  
