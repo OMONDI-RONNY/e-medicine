@@ -1,6 +1,37 @@
+<?php
+session_start();
+// Include the database connection
+include '../access/config.php'; // Adjust path if needed
+if (!isset($_SESSION['username'])) {
+    // Admin is not logged in, redirect to login page
+    header("Location: login.php");
+    exit; // Ensure no further code is executed
+}
+
+// Delete a laboratory test result
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
+    $id = $_POST['id'];
+
+    $query = "DELETE FROM laboratory WHERE LabID = ?";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    header("Location: lab.php");
+    exit();
+}
+
+// Fetch all laboratory records with patient information
+$query = "
+    SELECT laboratory.LabID, patients.firstname AS Patient, laboratory.TestName, laboratory.TestDate, laboratory.Result
+    FROM laboratory
+    JOIN patients ON laboratory.PatientID = patients.PatientID
+";
+$result = mysqli_query($conn, $query);
+$records = mysqli_fetch_all($result, MYSQLI_ASSOC);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +39,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
+         
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f5f7fa;
@@ -29,11 +61,12 @@
             display: flex;
         }
 
+       
         .container {
-            padding: 20px;
-            flex-grow: 1;
-        }
-
+    padding: 20px;
+    flex-grow: 1;
+    margin-left: -20px; /* Adjust this to move the container closer to the sidebar */
+}
         /* Header */
         .page-header h1 {
             font-size: 2rem;
@@ -134,7 +167,8 @@
                 width: 100%;
             }
         }
-    </style>
+    
+    </styl>
 </head>
 
 <body>
@@ -168,47 +202,78 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>John Doe</td>
-                            <td>Blood Test</td>
-                            <td>2024-10-01</td>
-                            <td>Normal</td>
-                            <td>
-                                <button class="btn-edit">Edit</button>
-                                <button class="btn-delete">Delete</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Jane Smith</td>
-                            <td>Urine Test</td>
-                            <td>2024-10-02</td>
-                            <td>Pending</td>
-                            <td>
-                                <button class="btn-edit">Edit</button>
-                                <button class="btn-delete">Delete</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Emily Johnson</td>
-                            <td>X-Ray</td>
-                            <td>2024-10-03</td>
-                            <td>Normal</td>
-                            <td>
-                                <button class="btn-edit">Edit</button>
-                                <button class="btn-delete">Delete</button>
-                            </td>
-                        </tr>
-                        <!-- Additional test records can be added here -->
+                        <?php foreach ($records as $record) : ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($record['Patient']); ?></td>
+                                <td><?php echo htmlspecialchars($record['TestName']); ?></td>
+                                <td><?php echo htmlspecialchars($record['TestDate']); ?></td>
+                                <td><?php echo htmlspecialchars($record['Result']); ?></td>
+                                <td>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="<?php echo $record['LabID']; ?>">
+                                        <button type="submit" class="btn-delete">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
+
+            <!-- Modal for adding a test result -->
+            <div class="modal fade" id="addTestResultModal" tabindex="-1" role="dialog" aria-labelledby="addTestResultModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form method="POST">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addTestResultModalLabel">Add Test Result</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="action" value="add">
+                                <div class="form-group">
+                                    <label for="patient_id">Patient</label>
+                                    <select name="patient_id" class="form-control" required>
+                                        <?php
+                                        $patientQuery = "SELECT PatientID, firstname FROM patients";
+                                        $patientResult = mysqli_query($conn, $patientQuery);
+                                        while ($patient = mysqli_fetch_assoc($patientResult)) {
+                                            echo "<option value='{$patient['PatientID']}'>{$patient['firstname']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="test">Test</label>
+                                    <input type="text" class="form-control" name="test" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="date">Date</label>
+                                    <input type="date" class="form-control" name="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="result">Result</label>
+                                    <input type="text" class="form-control" name="result" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Add Result</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <?php include 'footer.php'; ?> <!-- Include the footer file -->
+    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
-
 </html>

@@ -13,22 +13,43 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Get the patient's ID from the session
-$patientId = $_SESSION['user_id']; // Assuming 'user_id' corresponds to PatientID
+// Get the email from the session
+$userEmail = $_SESSION['user_id']; // Assuming 'user_id' corresponds to the email
 
-// Helper function to fetch active prescriptions
+// Fetch the PatientID using the user's email
+$query = "SELECT PatientID FROM patients WHERE email = ?";
+$stmt = $conn->prepare($query);
+
+if ($stmt === false) {
+    error_log("Prepare failed: " . $conn->error); // Log error message
+    die("MySQL Prepare Error: " . $conn->error); // Debugging: show error
+}
+
+$stmt->bind_param("s", $userEmail);
+$stmt->execute();
+$stmt->bind_result($patientId);
+$stmt->fetch();
+$stmt->close();
+
+// Debugging: check if PatientID is correctly retrieved
+if (!$patientId) {
+    die("Error: Patient ID not found for the logged-in user.");
+}
+
+// Helper function to fetch active prescriptions for the logged-in patient
 function fetchActivePrescriptions($conn, $patientId) {
-    $query = "SELECT p.Medication, p.Dosage, p.RefillsRemaining, d.Name AS doctor_name 
+    $query = "SELECT l.Result AS Medication, p.Dosage, p.RefillsRemaining, d.firstname AS doctor_name 
               FROM prescriptions p 
               JOIN appointments a ON p.AppointmentID = a.AppointmentID 
               JOIN doctors d ON a.DoctorID = d.DoctorID 
-              WHERE a.PatientID = ? AND p.Status = 'active'";
+              JOIN laboratory l ON a.PatientID = l.PatientID 
+              WHERE a.PatientID = ? AND p.Status = 'Active'";
     
     $stmt = $conn->prepare($query);
     
     if ($stmt === false) {
         error_log("Prepare failed: " . $conn->error); // Log error message
-        return []; // Return empty array on error
+        die("MySQL Prepare Error: " . $conn->error); // Debugging: show error
     }
     
     $stmt->bind_param("i", $patientId);
@@ -37,11 +58,13 @@ function fetchActivePrescriptions($conn, $patientId) {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-// Helper function to fetch prescription history
+
+// Helper function to fetch prescription history for the logged-in patient
 function fetchPrescriptionHistory($conn, $patientId) {
-    $query = "SELECT p.Medication, p.Dosage, p.CreatedAt, p.Status 
+    $query = "SELECT l.Result AS Medication, p.Dosage, p.CreatedAt, p.Status 
               FROM prescriptions p 
               JOIN appointments a ON p.AppointmentID = a.AppointmentID 
+              JOIN laboratory l ON a.PatientID = l.PatientID 
               WHERE a.PatientID = ? 
               ORDER BY p.CreatedAt DESC";
     
@@ -49,7 +72,7 @@ function fetchPrescriptionHistory($conn, $patientId) {
     
     if ($stmt === false) {
         error_log("Prepare failed: " . $conn->error); // Log error message
-        return []; // Return empty array on error
+        die("MySQL Prepare Error: " . $conn->error); // Debugging: show error
     }
     
     $stmt->bind_param("i", $patientId);
@@ -58,7 +81,8 @@ function fetchPrescriptionHistory($conn, $patientId) {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-// Fetch active prescriptions and prescription history
+
+// Fetch active prescriptions and prescription history for the logged-in patient
 $activePrescriptions = fetchActivePrescriptions($conn, $patientId);
 $prescriptionHistory = fetchPrescriptionHistory($conn, $patientId);
 ?>
@@ -224,7 +248,7 @@ $prescriptionHistory = fetchPrescriptionHistory($conn, $patientId);
 
             for (let j = 1; j < historyRows.length; j++) {
                 const tdHistoryMedication = historyRows[j].getElementsByTagName('td')[0];
-                const tdHistoryCreatedAt = historyRows[j].getElementsByTagName('td')[2];
+                const tdDate = historyRows[j].getElementsByTagName('td')[2];
 
                 let showHistoryRow = true;
 
@@ -235,9 +259,9 @@ $prescriptionHistory = fetchPrescriptionHistory($conn, $patientId);
                     }
                 }
 
-                if (tdHistoryCreatedAt) {
-                    const historyCreatedAtDate = new Date(tdHistoryCreatedAt.textContent || tdHistoryCreatedAt.innerText).toISOString().split('T')[0];
-                    if (dateFilter && historyCreatedAtDate !== dateFilter) {
+                if (dateFilter && tdDate) {
+                    const dateText = tdDate.textContent || tdDate.innerText;
+                    if (dateText !== dateFilter) {
                         showHistoryRow = false;
                     }
                 }

@@ -10,9 +10,30 @@ if (!isset($_SESSION['doctor_id'])) {
     exit();
 }
 
-// Prepare the SQL statement with error handling
+// Check if the form is submitted via POST for updating the appointment
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['updateAppointment'])) {
+    // Get the form data
+    $appointmentID = $_POST['appointmentID'];
+    $appointmentDate = $_POST['appointmentDate'];
+    $appointmentStatus = $_POST['appointmentStatus'];
+
+    // Prepare and execute the update query
+    $stmt = $conn->prepare("UPDATE appointments SET AppointmentDate = ?, Status = ? WHERE AppointmentID = ?");
+    $stmt->bind_param('ssi', $appointmentDate, $appointmentStatus, $appointmentID);
+
+    if ($stmt->execute()) {
+        $successMsg = "Appointment updated successfully!";
+    } else {
+        $errorMsg = "Error updating appointment: " . $conn->error;
+    }
+
+    // Close the statement
+    $stmt->close();
+}
+
+// Prepare the SQL statement to get appointments
 $stmt = $conn->prepare("
-    SELECT a.AppointmentDate, a.CreatedAt, a.Status, p.Name 
+    SELECT a.AppointmentID, a.AppointmentDate, a.CreatedAt, a.Status, p.firstname, p.PatientID
     FROM appointments a 
     JOIN patients p ON a.patientID = p.patientID 
     WHERE a.doctorID = ?
@@ -148,6 +169,13 @@ $conn->close();
         <div class="container">
             <h1>Appointment Management</h1>
 
+            <!-- Success/Error message display -->
+            <?php if (isset($successMsg)): ?>
+                <div class="alert alert-success"><?php echo $successMsg; ?></div>
+            <?php elseif (isset($errorMsg)): ?>
+                <div class="alert alert-danger"><?php echo $errorMsg; ?></div>
+            <?php endif; ?>
+
             <!-- Manage Appointment Button with Count Circle -->
             <div class="mb-3">
                 <button class="manage-appointment-btn">
@@ -156,20 +184,17 @@ $conn->close();
                 </button>
             </div>
 
-            <!-- Add New Appointment Button -->
-            <div class="mb-3">
-                <button class="btn btn-primary">Add New Appointment</button>
-            </div>
-
             <div class="card">
                 <div class="card-header">
                     <h5>Appointment List</h5>
+                    <macquee>conslutation</macquee>
                 </div>
                 <div class="card-body">
                     <table class="table table-responsive">
                         <thead>
                             <tr>
                                 <th>Patient Name</th>
+                                <th>Patient ID</th>
                                 <th>Date</th>
                                 <th>Time</th>
                                 <th>Status</th>
@@ -177,38 +202,165 @@ $conn->close();
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($appointments as $appointment): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($appointment['Name']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['AppointmentDate']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['CreatedAt']); ?></td>
-                                    <td>
-                                        <span class="badge <?php echo ($appointment['Status'] == 'Confirmed') ? 'badge-success' : (($appointment['Status'] == 'Pending') ? 'badge-warning' : 'badge-danger'); ?>">
-                                            <?php echo htmlspecialchars($appointment['Status']); ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <!-- Manage and Update buttons -->
-                                        <button class="btn btn-info action-btn">
-                                            <i class="fas fa-cog"></i> Manage
-                                        </button>
-                                        <button class="btn btn-warning action-btn">
-                                            <i class="fas fa-edit"></i> Update
-                                        </button>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
+
+<?php
+$today = date('Y-m-d'); 
+foreach ($appointments as $appointment): ?>
+    <tr>
+        <td><?php echo htmlspecialchars($appointment['firstname']); ?></td>
+        <td><?php echo htmlspecialchars($appointment['PatientID']); ?></td>
+        <td><?php echo htmlspecialchars($appointment['AppointmentDate']); ?></td>
+        <td><?php echo htmlspecialchars($appointment['CreatedAt']); ?></td>
+        <td>
+            <span class="badge <?php echo ($appointment['Status'] == 'Confirmed') ? 'badge-success' : (($appointment['Status'] == 'Pending') ? 'badge-warning' : 'badge-danger'); ?>">
+                <?php echo htmlspecialchars($appointment['Status']); ?>
+            </span>
+        </td>
+        <td>
+            <!-- Manage Button with data attributes to pass values to the modal -->
+            <button class="btn btn-info action-btn manage-btn" 
+                data-appointment-id="<?php echo htmlspecialchars($appointment['AppointmentID']); ?>" 
+                data-appointment-date="<?php echo htmlspecialchars($appointment['AppointmentDate']); ?>" 
+                data-appointment-status="<?php echo htmlspecialchars($appointment['Status']); ?>" 
+                data-toggle="modal" data-target="#manageAppointmentModal">
+                <i class="fas fa-cog"></i> Manage
+            </button>
+
+            <!-- Start Consultation Button, active only for today's appointments -->
+            <?php if (date('Y-m-d', strtotime($appointment['AppointmentDate'])) == $today): ?>
+                <button class="btn btn-success action-btn start-consultation-btn" 
+                    data-appointment-id="<?php echo htmlspecialchars($appointment['AppointmentID']); ?>" 
+                    data-patient-id="<?php echo htmlspecialchars($appointment['PatientID']); ?>" 
+                    data-toggle="modal" data-target="#startConsultationModal">
+                    <i class="fas fa-user-md"></i> Start Consultation(Active)
+                </button>
+            <?php else: ?>
+                <button class="btn btn-secondary action-btn" disabled>
+                    <i class="fas fa-user-md"></i> Start Consultation(Inactive)
+                </button>
+            <?php endif; ?>
+        </td>
+    </tr>
+<?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <?php include 'd_notification.php'; ?>
+        <?php include '../resources/includes/d_notification.php'; ?>
         
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Manage Appointment Modal -->
+    <div class="modal fade" id="manageAppointmentModal" tabindex="-1" role="dialog" aria-labelledby="manageAppointmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="manageAppointmentModalLabel">Manage Appointment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="POST" action="">
+                    <div class="modal-body">
+                        <input type="hidden" id="appointmentID" name="appointmentID">
+
+                        <div class="form-group">
+                            <label for="appointmentDate">Appointment Date</label>
+                            <input type="datetime-local" class="form-control" id="appointmentDate" name="appointmentDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="appointmentStatus">Status</label>
+                            <select class="form-control" id="appointmentStatus" name="appointmentStatus" required>
+                                <option value="Pending">Pending</option>
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" name="updateAppointment" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+   <!-- Start Consultation Modal -->
+<!-- Start Consultation Modal -->
+<div class="modal fade" id="startConsultationModal" tabindex="-1" role="dialog" aria-labelledby="startConsultationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="startConsultationModalLabel">Start Consultation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST" action="sendlab.php">
+                <div class="modal-body">
+                    <input type="hidden" id="consultationPatientID" name="patientID"> <!-- Hidden PatientID field -->
+                    <input type="hidden" id="consultationAppointmentID" name="appointmentID"> <!-- Hidden AppointmentID field -->
+                    <p>Patient ID: <span id="patientIDDisplay"></span></p> <!-- Display Patient ID -->
+
+                    <div class="form-group">
+                        <label for="symptoms">Symptoms</label>
+                        <textarea class="form-control" id="symptoms" name="symptoms" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recommendation">Doctor's Recommendation for Lab Tests</label>
+                        <textarea class="form-control" id="recommendation" name="recommendation" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recommendation">Consultation Fee</label>
+                        <input type="number" name="fee" id="fee" class="form-control" value="500">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Start Consultation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+       $(document).ready(function() {
+    // When the manage button is clicked, populate the modal with appointment data
+    $('.manage-btn').on('click', function() {
+        var appointmentID = $(this).data('appointment-id');
+        var appointmentDate = $(this).data('appointment-date');
+        var appointmentStatus = $(this).data('appointment-status');
+
+        $('#appointmentID').val(appointmentID);
+        $('#appointmentDate').val(appointmentDate);
+        $('#appointmentStatus').val(appointmentStatus);
+    });
+
+    // When the start consultation button is clicked, populate the patient ID and appointment ID
+    $('.start-consultation-btn').on('click', function() {
+        var patientID = $(this).data('patient-id'); // Get the patient ID
+        var appointmentID = $(this).data('appointment-id'); // Get the appointment ID
+
+        $('#consultationPatientID').val(patientID); // Set patient ID in the modal
+        $('#consultationAppointmentID').val(appointmentID); // Set appointment ID in the modal
+
+        $('#patientIDDisplay').text(patientID); // Display Patient ID on the modal
+    });
+});
+
+    </script>
+
 </body>
 </html>

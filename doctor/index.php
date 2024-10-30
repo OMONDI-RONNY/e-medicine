@@ -1,17 +1,14 @@
 <?php
-// Start the session
-session_start();
 
 // Include the database configuration
 include '../access/config.php'; // Your database connection settings
 
-// Check if the user is logged in
+session_start();
 if (!isset($_SESSION['doctor_id'])) {
-    echo "Doctor ID not set. Redirecting...";
+    // Redirect to login page if not logged in
     header("Location: login.php");
     exit();
 }
-
 
 // Initialize metrics
 $totalPatients = 0;
@@ -44,15 +41,25 @@ $prescriptionQuery->bind_param("i", $id); // Bind the session doctorID
 $prescriptionQuery->execute();
 $newPrescriptions = $prescriptionQuery->get_result()->fetch_assoc()['total'];
 
-// Fetch patient data for management section
-$patientsQuery = $conn->query("SELECT * FROM patients");
-if (!$patientsQuery) {
-    die("Database query failed: " . $conn->error);
-}
+// Pagination Logic
+$recordsPerPage = 5; // Define how many records per page
+$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+$offset = ($page - 1) * $recordsPerPage;
+
+// Fetch limited patient data for management section
+$patientsQuery = $conn->prepare("SELECT * FROM patients LIMIT ?, ?");
+$patientsQuery->bind_param("ii", $offset, $recordsPerPage);
+$patientsQuery->execute();
+$patientsResult = $patientsQuery->get_result();
+
+// Fetch total patients for pagination calculation
+$totalPatientsQuery = $conn->query("SELECT COUNT(*) as total FROM patients");
+$totalPatients = $totalPatientsQuery->fetch_assoc()['total'];
+$totalPages = ceil($totalPatients / $recordsPerPage); // Calculate total number of pages
 
 // Fetch appointment data for management section with patient names
 $appointmentsQuery = $conn->prepare("
-    SELECT a.*, p.Name 
+    SELECT a.*, p.firstname 
     FROM appointments a
     JOIN patients p ON a.PatientID = p.PatientID
     WHERE a.AppointmentDate >= CURDATE() AND a.DoctorID = ?
@@ -80,37 +87,30 @@ $conn->close();
             color: #333;
         }
 
-        /* Navbar Styling */
         .navbar {
             background-color: #007bff;
         }
         .navbar-brand, .nav-link {
             color: white !important;
         }
-
-        /* Custom styling for hamburger icon */
         .navbar-toggler {
             border-color: rgba(255, 255, 255, 0.1);
         }
-
         .navbar-toggler-icon {
             background-image: url('data:image/svg+xml;charset=utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"%3E%3Cpath stroke="rgba%28255, 255, 255, 0.5%29" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" d="M4 7h22M4 15h22M4 23h22"/%3E%3C/svg%3E');
         }
 
-        /* Dashboard Styling */
         .dashboard {
             padding: 20px;
-            display: flex; /* Use flexbox for layout */
+            display: flex;
         }
         .dashboard-content {
-            flex: 1; /* Take remaining space */
-            margin-right: 20px; /* Space between content and notifications */
+            flex: 1;
+            margin-right: 20px;
         }
         .card {
             margin-bottom: 20px;
         }
-
-        /* Metrics */
         .metric-card {
             background-color: #007bff;
             color: white;
@@ -125,18 +125,10 @@ $conn->close();
             font-size: 18px;
         }
         .metric-card i {
-            font-size: 48px; /* Increase icon size */
-            margin-bottom: 10px; /* Spacing below icons */
+            font-size: 48px;
+            margin-bottom: 10px;
         }
 
-        /* Adjust spacing between cards on smaller screens */
-        @media (max-width: 767.98px) {
-            .metric-card {
-                margin-bottom: 15px;
-            }
-        }
-
-        /* Notifications */
         .notification {
             padding: 10px;
             border: 1px solid #007bff;
@@ -146,6 +138,16 @@ $conn->close();
         .notification h5 {
             margin: 0;
             font-weight: bold;
+        }
+
+        .pagination {
+            justify-content: center;
+        }
+
+        @media (max-width: 767.98px) {
+            .metric-card {
+                margin-bottom: 15px;
+            }
         }
     </style>
 </head>
@@ -163,22 +165,21 @@ $conn->close();
         <div class="row">
             <div class="col-md-4 col-sm-12">
                 <div class="metric-card">
-                    <i class="fas fa-users"></i> <!-- Total Patients Icon -->
+                    <i class="fas fa-users"></i>
                     <h2><?php echo $totalPatients; ?></h2>
-                    
                     <p>Total Patients</p>
                 </div>
             </div>
             <div class="col-md-4 col-sm-12">
                 <div class="metric-card">
-                    <i class="fas fa-calendar-alt"></i> <!-- Upcoming Appointments Icon -->
+                    <i class="fas fa-calendar-alt"></i>
                     <h2><?php echo $upcomingAppointments; ?></h2>
                     <p>Upcoming Appointments</p>
                 </div>
             </div>
             <div class="col-md-4 col-sm-12">
                 <div class="metric-card">
-                    <i class="fas fa-file-medical-alt"></i> <!-- New Prescriptions Icon -->
+                    <i class="fas fa-file-medical-alt"></i>
                     <h2><?php echo $newPrescriptions; ?></h2>
                     <p>New Prescriptions</p>
                 </div>
@@ -201,9 +202,9 @@ $conn->close();
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($patient = $patientsQuery->fetch_assoc()): ?>
+                        <?php while ($patient = $patientsResult->fetch_assoc()): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($patient['Name']); ?></td>
+                                <td><?php echo htmlspecialchars($patient['firstname']); ?></td>
                                 <td><?php echo htmlspecialchars($patient['Age']); ?></td>
                                 <td><?php echo htmlspecialchars($patient['CreatedAt']); ?></td>
                                 <td><span class="badge badge-success">Active</span></td>
@@ -211,6 +212,25 @@ $conn->close();
                         <?php endwhile; ?>
                     </tbody>
                 </table>
+
+                <!-- Pagination Links -->
+                <nav>
+                    <ul class="pagination">
+                        <?php if($page > 1): ?>
+                            <li class="page-item"><a class="page-link" href="?page=<?php echo $page - 1; ?>">Previous</a></li>
+                        <?php endif; ?>
+
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?php if($i == $page) echo 'active'; ?>">
+                                <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <?php if($page < $totalPages): ?>
+                            <li class="page-item"><a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a></li>
+                        <?php endif; ?>
+                    </ul>
+                </nav>
             </div>
         </div>
 
@@ -223,7 +243,7 @@ $conn->close();
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Patient Name</th>
+                            <th>Patient</th>
                             <th>Date</th>
                             <th>Time</th>
                             <th>Status</th>
@@ -232,9 +252,9 @@ $conn->close();
                     <tbody>
                         <?php while ($appointment = $appointmentsResult->fetch_assoc()): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($appointment['Name']); ?></td>
-                                <td><?php echo htmlspecialchars(date('Y-m-d', strtotime($appointment['AppointmentDate']))); ?></td>
-                                <td><?php echo htmlspecialchars(date('H:i', strtotime($appointment['AppointmentDate']))); ?></td>
+                                <td><?php echo htmlspecialchars($appointment['firstname']); ?></td>
+                                <td><?php echo htmlspecialchars($appointment['AppointmentDate']); ?></td>
+                                <td><?php echo htmlspecialchars($appointment['AppointmentDate']); ?></td>
                                 <td><span class="badge badge-warning"><?php echo htmlspecialchars($appointment['Status']); ?></span></td>
                             </tr>
                         <?php endwhile; ?>
@@ -242,27 +262,7 @@ $conn->close();
                 </table>
             </div>
         </div>
-
-        <!-- Prescription Management Section -->
-        <div class="card">
-            <div class="card-header">
-                <h5>Prescription Management</h5>
-            </div>
-            <div class="card-body">
-                <p>Write a new prescription for a patient.</p>
-                <button class="btn btn-primary"><i class="fas fa-plus"></i> Create Prescription</button> <!-- Add icon to button -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Notifications Section -->
-    <div class="notifications">
-        <?php include 'd_notification.php'; ?> <!-- Include the notifications file -->
     </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

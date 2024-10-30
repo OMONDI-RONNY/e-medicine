@@ -10,12 +10,48 @@ if (!isset($_SESSION['doctor_id'])) {
     exit();
 }
 
-// Prepare the SQL statement for retrieving prescriptions
+// Process form submission for updating the prescription
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['prescriptionID'], $_POST['dosage'], $_POST['instructions'], $_POST['refills'], $_POST['medication'])) {
+    // Sanitize and retrieve form inputs
+    $prescriptionID = (int) $_POST['prescriptionID'];
+    $dosage = $conn->real_escape_string($_POST['dosage']);
+    $instructions = $conn->real_escape_string($_POST['instructions']);
+    $refills = (int) $_POST['refills'];
+    $medication = $conn->real_escape_string($_POST['medication']); // Ensure medication is treated as a string
+
+    // Prepare the SQL statement to update the prescription
+    $stmt = $conn->prepare("
+        UPDATE prescriptions 
+        SET Dosage = ?, Instructions = ?, RefillsRemaining = ?, Medication = ?, Status = 'completed', CreatedAt = NOW()
+        WHERE PrescriptionID = ?
+    ");
+
+    // Check if prepare was successful
+    if ($stmt === false) {
+        die('Prepare failed: ' . htmlspecialchars($conn->error));
+    }
+
+    // Bind parameters and execute
+    // The first four parameters are strings (s), and the last one is an integer (i)
+    $stmt->bind_param("ssssi", $dosage, $instructions, $medication, $refills, $prescriptionID);
+
+    if ($stmt->execute()) {
+        echo "<script>alert('Prescription updated successfully!'); window.location.href = 'prescription.php';</script>";
+    } else {
+        echo "<script>alert('Error updating prescription. Please try again.'); window.location.href = 'prescription.php';</script>";
+    }
+
+    // Close the statement
+    $stmt->close();
+}
+
+// Prepare the SQL statement for retrieving prescriptions with medication from the laboratory table
 $stmt = $conn->prepare("
-    SELECT p.Name AS PatientName, pr.Medication, pr.Dosage, pr.CreatedAt
+    SELECT p.firstname AS PatientName, p.lastname AS PatientLastName, pr.PrescriptionID, l.Result AS Medication, pr.Dosage, pr.CreatedAt
     FROM prescriptions pr
     JOIN appointments a ON pr.AppointmentID = a.AppointmentID
     JOIN patients p ON a.PatientID = p.PatientID
+    JOIN laboratory l ON pr.LabID = l.LabID  -- Assuming prescriptions have a LabID to link to the laboratory table
     WHERE a.DoctorID = ?
 ");
 
@@ -51,23 +87,19 @@ $conn->close();
             background-color: #f5f7fa;
             color: #333;
         }
-
         .navbar {
             background-color: #007bff;
         }
         .navbar-brand, .nav-link {
             color: white !important;
         }
-
         .dashboard {
             display: flex;
         }
-
         .container {
             padding: 20px;
             flex: 1;
         }
-
         .card {
             margin-bottom: 20px;
         }
@@ -75,20 +107,12 @@ $conn->close();
 </head>
 <body>
 
-<?php include '../resources/includes/d_header.php'; ?> <!-- Include the header file -->
-<div class="dashboard"> <!-- Flex container for sidebar and content -->
-    <?php include '../resources/includes/d_sidebar.php'; ?> <!-- Include the sidebar file -->
+<?php include '../resources/includes/d_header.php'; ?>
+<div class="dashboard">
+    <?php include '../resources/includes/d_sidebar.php'; ?>
 
-    <!-- Prescription Management Content -->
     <div class="container">
         <h1>Prescription Management</h1>
-
-        <!-- Add New Prescription Button -->
-        <div class="mb-3">
-            <button class="btn btn-primary" data-toggle="modal" data-target="#addPrescriptionModal">Add New Prescription</button>
-        </div>
-
-        <!-- Prescription List Table -->
         <div class="card">
             <div class="card-header">
                 <h5>Prescription List</h5>
@@ -101,15 +125,24 @@ $conn->close();
                             <th>Medication</th>
                             <th>Dosage</th>
                             <th>Date Issued</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($prescriptions as $prescription): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($prescription['PatientName']); ?></td>
+                                <td><?php echo htmlspecialchars($prescription['PatientName']) . ' ' . htmlspecialchars($prescription['PatientLastName']); ?></td>
                                 <td><?php echo htmlspecialchars($prescription['Medication']); ?></td>
                                 <td><?php echo htmlspecialchars($prescription['Dosage']); ?></td>
                                 <td><?php echo htmlspecialchars($prescription['CreatedAt']); ?></td>
+                                <td>
+                                    <button class="btn btn-warning" data-toggle="modal" 
+                                            data-target="#prescribeModal" 
+                                            data-prescriptionid="<?php echo $prescription['PrescriptionID']; ?>" 
+                                            data-medication="<?php echo htmlspecialchars($prescription['Medication']); ?>">
+                                        Prescribe
+                                    </button>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -118,44 +151,57 @@ $conn->close();
         </div>
     </div>
 
-    <!-- Prescription Modal -->
-    <div class="modal fade" id="addPrescriptionModal" tabindex="-1" role="dialog" aria-labelledby="addPrescriptionModalLabel" aria-hidden="true">
+    <div class="modal fade" id="prescribeModal" tabindex="-1" role="dialog" aria-labelledby="prescribeModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addPrescriptionModalLabel">Add New Prescription</h5>
+                    <h5 class="modal-title" id="prescribeModalLabel">Prescribe Medication</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-                        <div class="form-group">
-                            <label for="patientName">Patient Name:</label>
-                            <input type="text" class="form-control" name="patientName" id="patientName" placeholder="Enter patient's name" required>
-                        </div>
+                    <form method="POST" action="">
+                        <input type="hidden" name="prescriptionID" id="prescriptionID" value="">
                         <div class="form-group">
                             <label for="medication">Medication:</label>
-                            <input type="text" class="form-control" name="medication" id="medication" placeholder="Enter medication name" required>
+                            <input type="text" class="form-control" id="medication" name="medication" placeholder="Medication" readonly>
                         </div>
                         <div class="form-group">
                             <label for="dosage">Dosage:</label>
                             <input type="text" class="form-control" name="dosage" id="dosage" placeholder="Enter dosage" required>
                         </div>
-                        <button type="submit" name="addPrescription" class="btn btn-success">Add Prescription</button>
+                        <div class="form-group">
+                            <label for="instructions">Instructions:</label>
+                            <textarea class="form-control" name="instructions" id="instructions" rows="3" placeholder="Enter instructions" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="refills">Refills:</label>
+                            <input type="number" class="form-control" name="refills" id="refills" placeholder="Number of refills" required min="0">
+                        </div>
+                        <button type="submit" class="btn btn-success">Submit Prescription</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Include the Notifications Sidebar -->
-    <?php include 'd_notification.php'; ?> <!-- Include the notifications file -->
+    <?php include '../resources/includes/d_notification.php'; ?>
 </div>
 
-<?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
+<?php include '../resources/includes/footer.php'; ?>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $('#prescribeModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var prescriptionID = button.data('prescriptionid');
+        var medication = button.data('medication');
+        var modal = $(this);
+        modal.find('#prescriptionID').val(prescriptionID);
+        modal.find('#medication').val(medication); // This ensures medication is read-only and passed correctly
+    });
+</script>
 </body>
 </html>

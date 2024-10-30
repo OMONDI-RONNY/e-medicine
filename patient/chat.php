@@ -90,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .dashboard-container {
             display: flex; /* Enable flexbox for the container */
             max-width: 100%; /* Allow full width of the viewport */
-            
             padding: 20px;
         }
 
@@ -98,7 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             width: 250px; /* Set width for the sidebar */
             background-color: #fff; /* Background for the sidebar */
             padding: 20px; /* Padding for the sidebar */
-           
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Sidebar shadow */
             margin-left: 0; /* Remove left margin */
             margin-top: 0;
@@ -108,7 +106,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             flex: 1; /* Take up remaining space */
             padding: 20px;
             background-color: #fff;
-            
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
             margin-left: 0; /* Set margin-left to 0 */
             max-width: 100%; /* Ensure full width */
@@ -169,6 +166,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #ff0000;
             margin-top: 10px;
             text-align: center;
+            padding: 10px;
+            border: 1px solid #ff0000;
+            border-radius: 8px;
+            background-color: #ffe6e6;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .timestamp {
@@ -210,62 +212,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .user-icon {
             left: -40px;
         }
-        .disclaimer {
-    font-size: 0.9em; /* Slightly smaller font size */
-    color: #ff0000; /* Red color for emphasis */
-    margin-top: 20px; /* Space above the disclaimer */
-    padding: 10px; /* Padding for breathing room */
-    border: 1px solid #ff0000; /* Red border for emphasis */
-    border-radius: 8px; /* Rounded corners */
-    background-color: #ffe6e6; /* Light red background */
-    text-align: center; /* Centered text */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-}
-
     </style>
     <script>
-    // Function to scroll the chat box to the bottom
-    function scrollToBottom() {
-        const chatBox = document.getElementById('chatBox');
-        chatBox.scrollTop = chatBox.scrollHeight; // Always scroll to the bottom
-    }
+        // Function to scroll the chat box to the bottom
+        function scrollToBottom() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.scrollTop = chatBox.scrollHeight; // Always scroll to the bottom
+        }
 
-    // Call to scroll after loading the chat history
-    document.addEventListener('DOMContentLoaded', function() {
-        scrollToBottom(); // Initial scroll to the bottom when the page loads
-    });
-
-    // Function to get the user's timezone offset
-    function getTimeZoneOffset() {
-        const offset = new Date().getTimezoneOffset(); // Get offset in minutes
-        return -offset * 60 * 1000; // Convert to milliseconds
-    }
-
-    // Function to update the timestamp of messages in real-time
-    function updateTimestamps() {
-        const messages = document.querySelectorAll('.message');
-        const timezoneOffset = getTimeZoneOffset();
-
-        messages.forEach(message => {
-            const timestampElem = message.querySelector('.timestamp');
-            if (timestampElem) {
-                const timeParts = timestampElem.textContent.split(':');
-                const date = new Date();
-                date.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
-                const localTime = new Date(date.getTime() + timezoneOffset);
-                timestampElem.textContent = localTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
+        // Call to scroll after loading the chat history
+        document.addEventListener('DOMContentLoaded', function() {
+            scrollToBottom(); // Initial scroll to the bottom when the page loads
         });
-    }
 
-    // Update timestamps every minute
-    setInterval(updateTimestamps, 60000);
-
-    // Automatically scroll to the bottom when new messages are added
-    const chatBox = document.getElementById('chatBox');
-    const observer = new MutationObserver(scrollToBottom);
-    observer.observe(chatBox, { childList: true, subtree: true });
-</script>
+        // Automatically scroll to the bottom when new messages are added
+        const chatBox = document.getElementById('chatBox');
+        const observer = new MutationObserver(scrollToBottom);
+        observer.observe(chatBox, { childList: true, subtree: true });
+    </script>
 
 </head>
 
@@ -278,24 +242,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="chat-container">
             <h2 class="text-center">Online Doctor Chatbot</h2>
             <div class="chat-box" id="chatBox">
-    <p><strong>Session started at:</strong> <?php echo $_SESSION['start_time']; ?></p>
-    <?php
-    // Display chat history
-    foreach ($_SESSION['chat_history'] as $chat) {
-        echo '<div class="message user-message"><div class="message-icon user-icon">U</div><strong>You:</strong> ' . $chat['user']['message'] . '<br><span class="timestamp">' . $chat['user']['timestamp'] . '</span></div>';
-        if ($chat['bot']) {
-            echo '<div class="message bot-message"><div class="message-icon bot-icon">B</div><strong>Bot:</strong> Based on your input, the most likely diagnosis is:</div>';
-            echo '<div class="message bot-message"><strong>Diagnosis:</strong> ' . $chat['bot']['diagnosis'] . '<br><strong>Prescription:</strong> ' . $chat['bot']['prescription'] . '<br><span class="timestamp">' . $chat['bot']['timestamp'] . '</span></div>';
-        } else {
-            echo '<div class="message bot-message"><div class="message-icon bot-icon">B</div><strong>Bot:</strong> Sorry, I couldn\'t find any diagnoses for your symptoms.<br><span class="timestamp">' . $chat['bot']['timestamp'] . '</span></div>';
-        }
-    }
-    ?>
-    <div class="disclaimer">
-        <strong>Note:</strong> This chatbot is not a substitute for professional medical advice. Always consult a healthcare provider for accurate diagnosis and treatment.
-    </div>
-</div>
+                <p><strong>Session started at:</strong> <?php echo $_SESSION['start_time']; ?></p>
+                <?php
+                // Display chat history
+                foreach ($_SESSION['chat_history'] as $chat) {
+                    echo '<div class="message user-message"><div class="message-icon user-icon">U</div><strong>You:</strong> ' . $chat['user']['message'] . '<br><span class="timestamp">' . $chat['user']['timestamp'] . '</span></div>';
+                    if ($chat['bot']) {
+                        echo '<div class="message bot-message"><div class="message-icon bot-icon">B</div><strong>Bot:</strong> Based on your input, the most likely diagnosis is:</div>';
+                        echo '<div class="message bot-message"><strong>Diagnosis:</strong> ' . $chat['bot']['diagnosis'] . '<br><strong>Prescription:</strong> ' . $chat['bot']['prescription'] . '<br><span class="timestamp">' . $chat['bot']['timestamp'] . '</span></div>';
+                    } else {
+                        echo '<div class="message bot-message"><div class="message-icon bot-icon">B</div><strong>Bot:</strong> Sorry, I couldn\'t find any diagnoses for your symptoms.<br><span class="timestamp">' . $chat['bot']['timestamp'] . '</span></div>';
+                    }
+                }
+                ?>
+            </div>
 
+            <!-- Move disclaimer here -->
+            <div class="disclaimer">
+                <strong>Note:</strong> This chatbot is not a substitute for professional medical advice. Always consult a healthcare provider for accurate diagnosis and treatment.
+            </div>
 
             <form method="POST" action="">
                 <input type="text" class="form-control" name="symptom" placeholder="Enter your symptoms, separated by commas or full sentences" required>
@@ -309,10 +274,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </form>
         </div>
     </div>
-    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
 </body>
 
 </html>

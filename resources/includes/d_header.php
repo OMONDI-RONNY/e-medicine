@@ -8,20 +8,20 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
+            <li class="nav-item hidden-max">
                 <a class="nav-link" href="index.php" style="color: white;">Dashboard</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item hidden-max">
                 <a class="nav-link" href="patientdata.php" style="color: white;">Patients</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item hidden-max">
                 <a class="nav-link" href="appointment.php" style="color: white;">Appointments</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item hidden-max">
                 <a class="nav-link" href="prescription.php" style="color: white;">Prescriptions</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="logout.php" style="color: white;">Logout</a>
+                <a class="nav-link" href="../resources/includes/logout.php" style="color: white;">Logout</a>
             </li>
         </ul>
     </div>
@@ -42,6 +42,13 @@
     @media (max-width: 767.98px) {
         .navbar-collapse {
             background-color: #007bff; /* Keep the collapse background blue */
+        }
+    }
+
+    /* Hide all links with 'hidden-max' class when the screen is large */
+    @media (min-width: 992px) {
+        .hidden-max {
+            display: none !important;
         }
     }
 </style>

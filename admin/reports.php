@@ -1,3 +1,124 @@
+<?php
+session_start();
+include '../access/config.php'; // Include your database connection
+
+if (!isset($_SESSION['username'])) {
+    // Admin is not logged in, redirect to login page
+    header("Location: login.php");
+    exit; // Ensure no further code is executed
+}
+
+// Handle report generation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_report'])) {
+    $reportType = $_POST['report_type'];
+
+    // Generate PDF logic
+    require_once 'tcpdf/tcpdf.php'; // Ensure the path is correct
+
+    // Create new PDF document
+    $pdf = new TCPDF();
+
+    // Set document information
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetAuthor('E-Medicine System');
+    $pdf->SetTitle($reportType);
+    $pdf->SetHeaderData('', 0, 'Report: ' . $reportType, 'Generated on: ' . date('Y-m-d H:i:s'));
+
+    // Set margins
+    $pdf->SetMargins(15, 15, 15);
+    $pdf->SetAutoPageBreak(TRUE, 15);
+    $pdf->AddPage();
+
+    // Add content based on report type
+    if ($reportType === 'Patient Summary Report') {
+        // Fetch data from patients and health_records
+        $result = $conn->query("SELECT p.PatientID, p.firstname, COUNT(hr.RecordID) AS RecordCount 
+                                 FROM patients p 
+                                 LEFT JOIN healthrecords hr ON p.PatientID = hr.PatientID 
+                                 GROUP BY p.PatientID");
+        $html = '<h1>Patient Summary Report</h1>
+                 <table border="1" cellpadding="5">
+                     <tr>
+                         <th>Patient ID</th>
+                         <th>Name</th>
+                         <th>Number of Health Records</th>
+                     </tr>';
+        while ($row = $result->fetch_assoc()) {
+            $html .= '<tr>
+                          <td>' . htmlspecialchars($row['PatientID']) . '</td>
+                          <td>' . htmlspecialchars($row['firstname']) . '</td>
+                          <td>' . htmlspecialchars($row['RecordCount']) . '</td>
+                      </tr>';
+        }
+        $html .= '</table>';
+    } elseif ($reportType === 'Appointment Report') {
+        // Fetch data from appointments
+        $result = $conn->query("SELECT * FROM appointments");
+        $html = '<h1>Appointment Report</h1>
+                 <table border="1" cellpadding="5">
+                     <tr>
+                         <th>Appointment ID</th>
+                         <th>Patient ID</th>
+                         <th>Doctor ID</th>
+                         <th>Appointment Date</th>
+                         <th>Status</th>
+                     </tr>';
+        while ($row = $result->fetch_assoc()) {
+            $html .= '<tr>
+                          <td>' . htmlspecialchars($row['AppointmentID']) . '</td>
+                          <td>' . htmlspecialchars($row['PatientID']) . '</td>
+                          <td>' . htmlspecialchars($row['DoctorID']) . '</td>
+                          <td>' . date('Y-m-d H:i:s', strtotime($row['AppointmentDate'])) . '</td>
+                          <td>' . htmlspecialchars($row['Status']) . '</td>
+                      </tr>';
+        }
+        $html .= '</table>';
+    } elseif ($reportType === 'Prescription Report') {
+        // Fetch data from prescriptions (adjust fields as per your database structure)
+        $query = "SELECT pr.PrescriptionID, p.firstname, pr.Instructions, pr.CreatedAt 
+                  FROM prescriptions pr 
+                  JOIN patients p ON pr.PatientID = p.PatientID";
+        
+        $result = $conn->query($query);
+    
+        if (!$result) {
+            // Output the error message
+            die("Query Error: " . $conn->error);
+        }
+    
+        $html = '<h1>Prescription Report</h1>
+                 <table border="1" cellpadding="5">
+                     <tr>
+                         <th>Prescription ID</th>
+                         <th>Patient Name</th>
+                         <th>Description</th>
+                         <th>Date Created</th>
+                     </tr>';
+        while ($row = $result->fetch_assoc()) {
+            $html .= '<tr>
+                          <td>' . htmlspecialchars($row['PrescriptionID']) . '</td>
+                          <td>' . htmlspecialchars($row['firstname']) . '</td>
+                          <td>' . htmlspecialchars($row['Instructions']) . '</td>
+                          <td>' . date('Y-m-d H:i:s', strtotime($row['CreatedAt'])) . '</td>
+                      </tr>';
+        }
+        $html .= '</table>';
+    }
+    
+
+    // Output the HTML content
+    $pdf->writeHTML($html, true, false, true, false, '');
+
+    // Close and output PDF document
+    $fileName = $reportType . '_' . date('YmdHis') . '.pdf';
+    $pdf->Output($fileName, 'D'); // 'D' for download, 'I' for inline view
+    exit; // Stop script execution
+}
+
+// Fetch reports from the database
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,7 +135,6 @@
             color: #333;
         }
 
-        /* Navbar Styling */
         .navbar {
             background-color: #007bff;
         }
@@ -24,28 +144,22 @@
             color: white !important;
         }
 
-        /* Page Layout */
         .dashboard {
             display: flex;
         }
 
+        
         .container {
-            padding: 20px;
-            flex-grow: 1;
-        }
+    padding: 20px;
+    flex-grow: 1;
+    margin-left: -20px; /* Adjust this to move the container closer to the sidebar */
+}
 
-        /* Header */
         .page-header h1 {
             font-size: 2rem;
             color: #007bff;
         }
 
-        .page-header p {
-            font-size: 1.1rem;
-            color: #666;
-        }
-
-        /* Reports Table */
         .reports-table table {
             width: 100%;
             border-collapse: collapse;
@@ -64,8 +178,9 @@
             color: white;
         }
 
-        /* Action Buttons */
         .btn-generate {
+            background-color: #28a745;
+            color: white;
             padding: 6px 12px;
             border-radius: 4px;
             font-size: 0.9rem;
@@ -74,29 +189,17 @@
             transition: background 0.3s;
         }
 
-        .btn-generate {
-            background-color: #28a745;
-            color: white;
-        }
-
         .btn-generate:hover {
             background-color: #218838;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .reports-table table {
-                font-size: 0.9rem;
-            }
         }
     </style>
 </head>
 
 <body>
 
-    <?php include 'header.php'; ?> <!-- Include the header file -->
+    <?php include 'header.php'; ?>
     <div class="dashboard">
-        <?php include 'sidebar.php'; ?> <!-- Include the sidebar file -->
+        <?php include 'sidebar.php'; ?>
 
         <div class="container">
             <div class="page-header">
@@ -104,47 +207,45 @@
                 <p>Generate and view various reports related to the administration module.</p>
             </div>
 
-            <!-- Reports Table -->
-            <div class="reports-table">
-                <button class="btn-generate" data-toggle="modal" data-target="#generateReportModal">Generate Report</button>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Report Type</th>
-                            <th>Date Generated</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Patient Summary Report</td>
-                            <td>2024-10-01</td>
-                            <td>
-                                <button class="btn-generate">Download</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Appointment Report</td>
-                            <td>2024-10-02</td>
-                            <td>
-                                <button class="btn-generate">Download</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Prescription Report</td>
-                            <td>2024-10-03</td>
-                            <td>
-                                <button class="btn-generate">Download</button>
-                            </td>
-                        </tr>
-                        <!-- Additional report records can be added here -->
-                    </tbody>
-                </table>
+            <button class="btn-generate" data-toggle="modal" data-target="#generateReportModal">Generate Report</button>
+
+          
+
+            <!-- Generate Report Modal -->
+            <div class="modal fade" id="generateReportModal" tabindex="-1" role="dialog" aria-labelledby="generateReportModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="generateReportModalLabel">Generate Report</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form method="post" action="">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="report_type">Select Report Type</label>
+                                    <select class="form-control" id="report_type" name="report_type" required>
+                                        <option value="Patient Summary Report">Patient Summary Report</option>
+                                        <option value="Appointment Report">Appointment Report</option>
+                                        <option value="Prescription Report">Prescription Report</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" name="generate_report">Generate Report</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 
-    <?php include 'footer.php'; ?> <!-- Include the footer file -->
+    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
+
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

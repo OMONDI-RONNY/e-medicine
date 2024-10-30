@@ -1,17 +1,23 @@
 <?php
-include '../access/config.php'; // Database configuration
+session_start();
+include '../access/config.php'; 
+if (!isset($_SESSION['username'])) {
+    // Admin is not logged in, redirect to login page
+    header("Location: login.php");
+    exit; // Ensure no further code is executed
+}
 
-// Define the number of records per page
-$records_per_page = 5;
 
-// Get the current page number from the URL, if none exists, set to 1
+$records_per_page = 10;
+
+
 $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($current_page - 1) * $records_per_page;
 
-// Fetch appointments from the database with pagination
+
 $query = "SELECT appointments.AppointmentID, 
-                 patients.Name AS PatientName, 
-                 doctors.Name AS DoctorName, 
+                 patients.firstname AS PatientName, 
+                 doctors.firstname AS DoctorName, 
                  appointments.AppointmentDate, 
                  appointments.Status 
           FROM appointments 
@@ -30,17 +36,17 @@ while ($row = $result->fetch_assoc()) {
     $appointments[] = $row;
 }
 
-// Get total number of records for pagination
+
 $total_query = "SELECT COUNT(*) AS total FROM appointments";
 $total_result = $conn->query($total_query);
 $total_row = $total_result->fetch_assoc();
 $total_records = $total_row['total'];
 $total_pages = ceil($total_records / $records_per_page);
 
-// Process appointment actions (Edit/Delete)
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update'])) {
-        // Edit appointment logic
+      
         $appointmentID = $_POST['appointment_id'];
         $status = $_POST['status'];
         $updateQuery = "UPDATE appointments SET Status = '$status' WHERE AppointmentID = $appointmentID";
@@ -48,13 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($_POST['delete'])) {
-        // Delete appointment logic
+      
         $appointmentID = $_POST['appointment_id'];
         $deleteQuery = "DELETE FROM appointments WHERE AppointmentID = $appointmentID";
         $conn->query($deleteQuery);
     }
 
-    // Redirect to the same page
+    
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
@@ -76,17 +82,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #333;
         }
 
-        /* Page Layout */
+        
         .dashboard {
             display: flex;
         }
 
         .container {
-            padding: 20px;
-            flex-grow: 1;
-        }
+    padding: 20px;
+    flex-grow: 1;
+    margin-left: -20px; /* Adjust this negative margin to bring it closer to the sidebar */
+}
 
-        /* Appointments Table */
+        
         .appointments-table table {
             width: 100%;
             border-collapse: collapse;
@@ -105,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: white;
         }
 
-        /* Action Buttons */
+        
         .btn-edit,
         .btn-delete {
             padding: 6px 12px;
@@ -115,36 +122,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             cursor: pointer;
         }
 
-        /* Modal Styles */
+        
         .modal-header {
             background-color: #007bff;
             color: white;
         }
 
-        /* Pagination */
+        
         .pagination {
             justify-content: center;
         }
+        
     </style>
 </head>
 
 <body>
 
-    <?php include 'header.php'; ?> <!-- Include the header file -->
+    <?php include 'header.php'; ?> 
     <div class="dashboard">
-        <?php include 'sidebar.php'; ?> <!-- Include the sidebar file -->
+        <?php include 'sidebar.php'; ?> 
 
         <div class="container">
             <div class="page-header">
                 <h1>Appointment Management</h1>
             </div>
 
-            <!-- Real-Time Search -->
+            
             <div class="form-group">
                 <input type="text" id="searchBar" class="form-control" placeholder="Search appointments...">
             </div>
 
-            <!-- Appointments Table -->
+            
             <div class="appointments-table">
                 <table id="appointmentsTable">
                     <thead>
@@ -171,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <?php echo $appointment['Status']; ?>
                             </span></td>
                             <td>
-                                <!-- Edit Button triggers Edit Modal -->
+                                
                                 <button type="button" class="btn btn-warning btn-edit" data-toggle="modal" 
                                         data-target="#editModal" 
                                         data-id="<?php echo $appointment['AppointmentID']; ?>" 
@@ -179,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     Edit
                                 </button>
                                 
-                                <!-- Delete Button triggers Delete Modal -->
+                                
                                 <button type="button" class="btn btn-danger btn-delete" data-toggle="modal" 
                                         data-target="#deleteModal" 
                                         data-id="<?php echo $appointment['AppointmentID']; ?>">
@@ -193,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </table>
             </div>
 
-            <!-- Pagination -->
+            
             <nav aria-label="Page navigation">
                 <ul class="pagination">
                     <?php for ($i = 1; $i <= $total_pages; $i++): ?>
@@ -205,8 +213,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </nav>
         </div>
     </div>
+    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
 
-    <!-- Edit Appointment Modal -->
+    
     <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -237,7 +246,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    
     <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -264,9 +273,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        // Pass appointment data to the modals
+        
         $('#editModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget); // Button that triggered the modal
+            var button = $(event.relatedTarget); 
             var appointmentId = button.data('id');
             var status = button.data('status');
 
@@ -276,14 +285,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
 
         $('#deleteModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget); // Button that triggered the modal
+            var button = $(event.relatedTarget); 
             var appointmentId = button.data('id');
 
             var modal = $(this);
             modal.find('#deleteAppointmentId').val(appointmentId);
         });
 
-        // Real-Time Search
+
         $(document).ready(function() {
             $('#searchBar').on('keyup', function() {
                 var value = $(this).val().toLowerCase();

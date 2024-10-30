@@ -11,26 +11,27 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item"><a class="nav-link" href="index.php">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="users.php">Users</a></li>
-            <li class="nav-item"><a class="nav-link" href="appoints.php">Appointments</a></li>
-            <li class="nav-item"><a class="nav-link" href="prescription.php">Prescriptions</a></li>
-            <li class="nav-item"><a class="nav-link" href="pharmacy.php">Pharmacy</a></li>
-            <li class="nav-item"><a class="nav-link" href="lab.php">Laboratory</a></li>
-            <li class="nav-item"><a class="nav-link" href="finance.php">Finance</a></li>
-            <li class="nav-item"><a class="nav-link" href="reports.php">Reports</a></li>
+            <li class="nav-item hidden-max"><a class="nav-link" href="index.php">Dashboard</a></li>
+            <li class="nav-item hidden-max"><a class="nav-link" href="users.php">Users</a></li>
+            <li class="nav-item hidden-max"><a class="nav-link" href="appoints.php">Appointments</a></li>
+            <li class="nav-item hidden-max"><a class="nav-link" href="prescription.php">Prescriptions</a></li>
+            <li class="nav-item hidden-max"><a class="nav-link" href="pharmacy.php">Pharmacy</a></li>
+            <li class="nav-item hidden-max"><a class="nav-link" href="lab.php">Laboratory</a></li>
+            <li class="nav-item hidden-max"><a class="nav-link" href="finance.php">Finance</a></li>
+            <li class="nav-item hidden-max"><a class="nav-link" href="reports.php">Reports</a></li>
+
+            <!-- These two remain visible on a maximized screen -->
             <li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Logout</a></li>
+            <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
         </ul>
     </div>
 </nav>
-
-
 
 <style>
     .navbar {
         background-color: #007bff;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        
     }
 
     .navbar-brand,
@@ -63,8 +64,21 @@
         justify-content: center;
     }
 
-    /* Add some padding to the body */
     body {
         padding-top: 20px;
+    }
+
+    /* Hide all links with 'hidden-max' class when the screen is large */
+    @media (min-width: 992px) {
+        .hidden-max {
+            display: none !important;
+        }
+    }
+
+    /* Show all links normally on smaller screens */
+    @media (max-width: 991.98px) {
+        .navbar-nav .nav-item {
+            display: block;
+        }
     }
 </style>

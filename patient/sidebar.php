@@ -101,6 +101,7 @@
         <li class="list-group-item"><a href="healthrecord.php"><i class="fas fa-file-medical"></i> Health Records</a></li>
         <li class="list-group-item"><a href="chat.php"><i class="fas fa-user-md"></i> Online Doctor</a></li>
         <li class="list-group-item"><a href="video.php"><i class="fas fa-user-md"></i> Video consultation</a></li>
+        <li class="list-group-item"><a href="profile.php"><i class="fas fa-user"></i> Profile</a></li>
         <li class="list-group-item"><a href="#"><i class="fas fa-headset"></i> Contact Support</a></li>
     </ul>
 </div>

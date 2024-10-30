@@ -35,6 +35,13 @@
                 border: none;
             }
         }
+
+        /* Hide all links except Logout when screen is larger */
+        @media (min-width: 992px) {
+            .hidden-max {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 
@@ -47,19 +54,19 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
+                <li class="nav-item hidden-max">
                     <a class="nav-link" href="index.php">Dashboard</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item hidden-max">
                     <a class="nav-link" href="appointment.php">Appointments</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item hidden-max">
                     <a class="nav-link" href="healthrecord.php">Health Records</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item hidden-max">
                     <a class="nav-link" href="prescription.php">Prescriptions</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item hidden-max">
                     <a class="nav-link" href="#">Contact Support</a>
                 </li>
                 <li class="nav-item">
@@ -68,3 +75,6 @@
             </ul>
         </div>
     </nav>
+</body>
+
+</html>

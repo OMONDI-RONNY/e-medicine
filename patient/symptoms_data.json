@@ -21,6 +21,11 @@
         "prescription": "Stay hydrated, rest, and consider over-the-counter remedies."
       },
       {
+        "diagnosis": "i hope you are doing well how may i help you as an AI chatbot am here to help you",
+        "symptom": "hello,hi,good morning,good evening,good afternoon",
+        "prescription": "This chatbot is not a substitute for professional medical advice. Always consult a healthcare provider for accurate diagnosis and treatment."
+      },
+      {
         "diagnosis": "Allergies",
         "symptom": "sneezing, itchy eyes, runny nose",
         "prescription": "Antihistamines and avoiding allergens."

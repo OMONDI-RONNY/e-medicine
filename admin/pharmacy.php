@@ -29,11 +29,12 @@
             display: flex;
         }
 
+        
         .container {
-            padding: 20px;
-            flex-grow: 1;
-        }
-
+    padding: 20px;
+    flex-grow: 1;
+    margin-left: -20px; /* Adjust this to move the container closer to the sidebar */
+}
         /* Header */
         .page-header h1 {
             font-size: 2rem;
@@ -201,7 +202,8 @@
         </div>
     </div>
 
-    <?php include 'footer.php'; ?> <!-- Include the footer file -->
+    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
+
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

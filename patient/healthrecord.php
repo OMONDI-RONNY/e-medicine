@@ -3,6 +3,12 @@
 
 // Include database configuration
 include '../access/config.php'; // Assuming this file contains your mysqli connection code
+require 'phpmailer/src/Exception.php';
+require 'phpmailer/src/PHPMailer.php';
+require 'phpmailer/src/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 // Start session
 session_start();
@@ -22,7 +28,7 @@ function getPatientId($conn, $email) {
     $stmt = $conn->prepare($query);
     
     if ($stmt === false) {
-        die("Prepare failed: " . $conn->error); // Output error message
+        die("Prepare failed: " . $conn->error);
     }
     
     $stmt->bind_param("s", $email);
@@ -36,7 +42,7 @@ function getPatientId($conn, $email) {
 
 // Helper function to fetch health records
 function fetchHealthRecords($conn, $patientId) {
-    $query = "SELECT hr.CreatedAt, hr.Description, d.Name AS doctor_name
+    $query = "SELECT hr.CreatedAt, hr.Description, d.firstname AS doctor_name
               FROM healthrecords hr
               JOIN appointments a ON hr.AppointmentID = a.AppointmentID
               JOIN doctors d ON a.DoctorID = d.DoctorID
@@ -45,13 +51,56 @@ function fetchHealthRecords($conn, $patientId) {
     $stmt = $conn->prepare($query);
     
     if ($stmt === false) {
-        die("Prepare failed: " . $conn->error); // Output error message
+        die("Prepare failed: " . $conn->error);
     }
     
     $stmt->bind_param("i", $patientId);
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+// Handle email sharing
+$error = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['share'])) {
+    $doctorEmail = $_POST['doctor_email']; // Replace with your actual form field name
+    $healthRecords = fetchHealthRecords($conn, getPatientId($conn, $patientEmail));
+
+    // Prepare the content for the email
+    $recordContent = "<h1>Health Records</h1>";
+    $recordContent .= "<table border='1' cellpadding='10'><tr><th>Date</th><th>Diagnosis</th><th>Doctor</th></tr>";
+    foreach ($healthRecords as $record) {
+        $recordContent .= "<tr><td>" . htmlspecialchars($record['CreatedAt']) . "</td><td>" . htmlspecialchars($record['Description']) . "</td><td>" . htmlspecialchars($record['doctor_name']) . "</td></tr>";
+    }
+    $recordContent .= "</table>";
+
+    // Configure PHPMailer
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'omoron37@gmail.com'; // Your Gmail address
+        $mail->Password = 'uxrgdwpdpujljjdf'; // Your app-specific password
+        $mail->SMTPSecure = 'ssl';
+        $mail->Port = 465;
+
+        // Set email details
+        $mail->setFrom('your-email@gmail.com', 'E-Medicine System');
+        $mail->addAddress($doctorEmail);
+        $mail->isHTML(true);
+        $mail->Subject = "Patient Health Records";
+        $mail->Body = $recordContent;
+
+        // Send email
+        if ($mail->send()) {
+            echo "<script>alert('Health records sent to doctor successfully.');</script>";
+        }
+    } catch (Exception $e) {
+        $error = "Failed to send email: {$mail->ErrorInfo}";
+        echo "<script>alert('$error');</script>";
+        error_log("Mailer Error: " . $mail->ErrorInfo); // Log error for deeper analysis
+    }
 }
 
 // Get the PatientID from the patients table using the email
@@ -77,12 +126,10 @@ $healthRecords = fetchHealthRecords($conn, $patientId);
             color: #333;
         }
 
-        /* Layout Styling */
         .dashboard-container {
             display: flex;
         }
 
-        /* Sidebar Styling */
         .sidebar {
             background-color: #007bff;
             padding: 20px;
@@ -103,17 +150,14 @@ $healthRecords = fetchHealthRecords($conn, $patientId);
 
 <body>
 
-<?php include '../resources/includes/p_header.php'; ?> <!-- Include the header file -->
+<?php include '../resources/includes/p_header.php'; ?>
 
-    <!-- Dashboard and Sidebar Container -->
     <div class="dashboard-container">
-        <?php include 'sidebar.php'; ?> <!-- Include the sidebar file -->
+        <?php include 'sidebar.php'; ?>
 
-        <!-- Health Records Content -->
         <div class="dashboard-content">
             <h1>My Health Records</h1>
 
-            <!-- Medical History Section -->
             <div class="card">
                 <div class="card-header">
                     <h5>Medical History</h5>
@@ -144,20 +188,24 @@ $healthRecords = fetchHealthRecords($conn, $patientId);
                 </div>
             </div>
 
-            <!-- Share Records Section -->
             <div class="card">
                 <div class="card-header">
                     <h5>Share Health Records</h5>
                 </div>
                 <div class="card-body">
-                    <p>Share your health records with your doctor securely via email or directly through the system.</p>
-                    <button class="btn btn-primary">Share Records</button>
+                    <form method="POST">
+                        <div class="form-group">
+                            <label for="doctor_email">Doctor's Email:</label>
+                            <input type="email" name="doctor_email" class="form-control" required>
+                        </div>
+                        <button type="submit" name="share" class="btn btn-primary">Share Records</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
+    <?php include '../resources/includes/footer.php'; ?>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

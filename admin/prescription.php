@@ -1,12 +1,18 @@
 <?php
+session_start();
 include '../access/config.php'; // Database configuration
+if (!isset($_SESSION['username'])) {
+    // Admin is not logged in, redirect to login page
+    header("Location: login.php");
+    exit; // Ensure no further code is executed
+}
 
 // Fetch prescriptions from the database with pagination
 $limit = 5; // Maximum number of records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-$query = "SELECT prescriptions.PrescriptionID, patients.Name AS PatientName, prescriptions.Medication, 
+$query = "SELECT prescriptions.PrescriptionID, patients.firstname AS PatientName, prescriptions.Medication, 
           prescriptions.Dosage, prescriptions.CreatedAt, prescriptions.Status 
           FROM prescriptions 
           JOIN appointments ON prescriptions.AppointmentID = appointments.AppointmentID
@@ -91,9 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .container {
-            padding: 20px;
-            flex-grow: 1;
-        }
+    padding: 20px;
+    flex-grow: 1;
+    margin-left: -20px; /* Adjust this to move the container closer to the sidebar */
+}
 
         .page-header h1 {
             font-size: 2rem;
@@ -259,7 +266,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <?php include 'footer.php'; ?> <!-- Include the footer file -->
+    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
 
     <!-- Edit Prescription Modal -->
     <div class="modal fade" id="editPrescriptionModal" tabindex="-1" role="dialog" aria-labelledby="editPrescriptionModalLabel" aria-hidden="true">

@@ -98,7 +98,11 @@
         <li class="list-group-item"><a href="index.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
         <li class="list-group-item"><a href="patientdata.php"><i class="fas fa-user-injured"></i> Patients</a></li>
         <li class="list-group-item"><a href="appointment.php"><i class="fas fa-calendar-check"></i> Appointments</a></li>
+        <li class="list-group-item"><a href="calender.php"><i class="fas fa-calendar"></i> Timetable</a></li>
+
         <li class="list-group-item"><a href="prescription.php"><i class="fas fa-file-prescription"></i> Prescription</a></li>
+        <li class="list-group-item"><a href="profile.php"><i class="fas fa-user"></i> Profile</a></li>
+
         <li class="list-group-item"><a href="#"><i class="fas fa-headset"></i> Contact Support</a></li>
     </ul>
 </div>

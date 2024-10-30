@@ -34,7 +34,7 @@ function fetchPatientDetails($conn, $patientEmail) {
 // Helper function to fetch upcoming appointments
 function fetchUpcomingAppointments($conn, $patientEmail) {
     $currentDate = date('Y-m-d H:i:s'); // Current date and time
-    $query = "SELECT d.Name AS doctor_name, a.AppointmentDate, a.Status, a.CreatedAt 
+    $query = "SELECT d.firstname AS doctor_name, a.AppointmentDate, a.Status, a.CreatedAt 
               FROM appointments a 
               JOIN doctors d ON a.DoctorID = d.DoctorID 
               JOIN patients p ON a.PatientID = p.PatientID
@@ -110,28 +110,63 @@ $activePrescriptions = fetchActivePrescriptions($conn, $patientEmail);
             flex-wrap: wrap; /* Allow cards to wrap */
             gap: 20px; /* Space between cards */
         }
+/* Increase space between the cards */
+.overview-row {
+    display: flex; /* Use flexbox for the overview cards */
+    flex-wrap: wrap; /* Allow cards to wrap */
+    gap: 30px; /* Increase the space between cards */
+}
 
-        .overview-card {
-            background-color: #007bff;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            border-radius: 10px;
-            flex: 1 1 300px; /* Flex grow and shrink, with a basis of 300px */
-            min-height: 200px; /* Set a minimum height for consistency */
-            display: flex; /* Use flexbox for card content */
-            flex-direction: column; /* Stack content vertically */
-            justify-content: center; /* Center content vertically */
-        }
+/* Reduce card size further */
+.overview-card {
+    background-color: #28a745; /* Change the color */
+    color: white;
+    text-align: center;
+    padding: 8px; /* Reduce padding further */
+    border-radius: 10px;
+    flex: 1 1 180px; /* Further reduce basis to 180px */
+    min-height: 120px; /* Reduce the height further */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 
-        .overview-card h2 {
-            font-size: 36px;
-            margin: 10px 0; /* Add margin to separate from icon */
-        }
+/* Reduce the icon size */
+.icon {
+    font-size: 35px; /* Even smaller icon */
+    margin-bottom: 8px; /* Less space between icon and text */
+}
 
-        .overview-card p {
-            font-size: 18px;
-        }
+/* Reduce the font sizes */
+.overview-card h2 {
+    font-size: 20px; /* Smaller heading */
+    margin: 5px 0;
+}
+
+.overview-card p {
+    font-size: 12px; /* Smaller paragraph */
+}
+
+/* Modify the colors of the specific cards */
+.overview-card:first-child {
+    background-color: #17a2b8; /* For the first card (patient details) */
+}
+
+.overview-card:nth-child(2) {
+    background-color: #ffc107; /* For the second card (appointments) */
+}
+
+.overview-card:nth-child(3) {
+    background-color: #dc3545; /* For the third card (prescriptions) */
+}
+
+/* Adjust table to match card size */
+.table {
+    font-size: 14px; /* Make table text smaller */
+}
+
+
+
 
         /* Icons */
         .icon {
@@ -172,9 +207,8 @@ $activePrescriptions = fetchActivePrescriptions($conn, $patientEmail);
             <div class="overview-row">
                 <div class="overview-card">
                     <i class="fas fa-user icon"></i>
-                    <h2><?= htmlspecialchars($patientDetails['Name']); ?></h2>
-                    <p>Age: <?= htmlspecialchars($patientDetails['Age']); ?></p>
-                    <p>Status: <?= htmlspecialchars($patientDetails['status']); ?></p>
+                    <h2><?= strtoupper(htmlspecialchars($patientDetails['firstname'])) . ' ' . strtoupper(htmlspecialchars($patientDetails['lastname'])); ?></h2>
+                    <p>ID: <?= strtoupper(htmlspecialchars($patientDetails['PatientID'])); ?></p>
                 </div>
                 <div class="overview-card">
                     <i class="fas fa-calendar-alt icon"></i>

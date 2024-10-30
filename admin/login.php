@@ -4,6 +4,8 @@ session_start(); // Start the session
 // Include your database connection settings
 include '../access/config.php'; // Update with your path
 
+
+
 // Initialize error variable
 $error = '';
 
@@ -23,8 +25,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Verify password
         if (password_verify($inputPassword, $row['Password'])) {
             // Store user session
-            $_SESSION['admin_id'] = $row['AdminID'];
-            $_SESSION['username'] = $inputUsername;
+           
+          $_SESSION['username'] = $inputUsername;
 
             // Redirect to index.php upon successful login
             header("Location: index.php");

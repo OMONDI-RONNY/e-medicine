@@ -2,65 +2,63 @@
 // appointments.php
 
 // Include database configuration
-include '../access/config.php'; // Assuming this file contains your mysqli connection code
+include '../access/config.php'; 
 
 // Start session
 session_start();
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php"); // Redirect to login page if not logged in
+    header("Location: login.php"); 
     exit();
 }
 
 // Get the patient's email from the session
-$patientEmail = $_SESSION['user_id']; // Assuming 'user_id' is the patient's email stored in the session
+$patientEmail = $_SESSION['user_id'];
 
-// Helper function to fetch upcoming appointments
+// Helper functions to fetch appointments (unchanged)
 function fetchUpcomingAppointments($conn, $patientEmail) {
     $currentDate = date('Y-m-d H:i:s');
-    $query = "SELECT d.Name AS doctor_name, a.AppointmentDate, a.Status 
+    $query = "SELECT d.firstname AS doctor_name, a.AppointmentDate, a.Status 
               FROM appointments a 
               JOIN doctors d ON a.DoctorID = d.DoctorID 
               JOIN patients p ON a.PatientID = p.PatientID
               WHERE p.Email = ? AND a.AppointmentDate >= ? 
               ORDER BY a.AppointmentDate ASC";
     $stmt = $conn->prepare($query);
-    
     if ($stmt === false) {
         die("Prepare failed: " . $conn->error);
     }
-    
     $stmt->bind_param("ss", $patientEmail, $currentDate);
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-// Helper function to fetch past appointments
 function fetchPastAppointments($conn, $patientEmail) {
     $currentDate = date('Y-m-d H:i:s');
-    $query = "SELECT d.Name AS doctor_name, a.AppointmentDate, a.Status 
+    $query = "SELECT d.firstname AS doctor_name, a.AppointmentDate, a.Status 
               FROM appointments a 
               JOIN doctors d ON a.DoctorID = d.DoctorID 
               JOIN patients p ON a.PatientID = p.PatientID
               WHERE p.Email = ? AND a.AppointmentDate < ? 
               ORDER BY a.AppointmentDate DESC";
     $stmt = $conn->prepare($query);
-    
     if ($stmt === false) {
         die("Prepare failed: " . $conn->error);
     }
-    
     $stmt->bind_param("ss", $patientEmail, $currentDate);
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-// Fetch upcoming and past appointments
 $upcomingAppointments = fetchUpcomingAppointments($conn, $patientEmail);
 $pastAppointments = fetchPastAppointments($conn, $patientEmail);
+
+// Fetch all doctors for the dropdown
+$doctorsQuery = "SELECT DoctorID, firstname, specialty FROM doctors";
+$doctorsResult = $conn->query($doctorsQuery);
 ?>
 
 <!DOCTYPE html>
@@ -72,6 +70,7 @@ $pastAppointments = fetchPastAppointments($conn, $patientEmail);
     <title>Appointments - E-Medicine System</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -79,7 +78,6 @@ $pastAppointments = fetchPastAppointments($conn, $patientEmail);
             color: #333;
         }
 
-        /* Layout Styling */
         .dashboard-container {
             display: flex;
         }
@@ -99,6 +97,57 @@ $pastAppointments = fetchPastAppointments($conn, $patientEmail);
         .card {
             margin-bottom: 20px;
         }
+
+        /* Modal Styling */
+        .modal-header {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .modal-footer .btn-primary {
+            background-color: #007bff;
+        }
+
+        /* Button Styling */
+        .btn-appointment {
+            margin-bottom: 20px;
+            background-color: #28a745 !important; /* Force green color by default */
+            color: white !important;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 18px;
+            transition: 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slight shadow for better visibility */
+            font-weight: bold;
+            border: none;
+        }
+
+        .btn-appointment i {
+            margin-right: 10px;
+        }
+
+        .btn-appointment:hover {
+            background-color: #218838 !important; /* Darker green on hover */
+            transform: scale(1.05); /* Slight scaling on hover */
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-header, .modal-footer {
+            border: none;
+        }
+
+        .form-control {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: none;
+        }
     </style>
 </head>
 
@@ -106,13 +155,65 @@ $pastAppointments = fetchPastAppointments($conn, $patientEmail);
 
 <?php include '../resources/includes/p_header.php'; ?>
 
-    <!-- Dashboard and Sidebar Container -->
     <div class="dashboard-container">
-        <?php include 'sidebar.php'; ?> <!-- Include the sidebar file -->
+        <?php include 'sidebar.php'; ?>
 
-        <!-- Appointments Content -->
         <div class="dashboard-content">
             <h1>My Appointments</h1>
+
+            <!-- Appointment Button -->
+            <button class="btn btn-appointment" data-toggle="modal" data-target="#appointmentModal">
+                <i class="fas fa-calendar-plus"></i> Make an Appointment
+            </button>
+
+            <!-- Appointment Modal -->
+            <div class="modal fade" id="appointmentModal" tabindex="-1" role="dialog" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="appointmentModalLabel">Make an Appointment</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="appointmentForm" action="submit_appointment.php" method="POST">
+                                <div class="form-group">
+                                <label for="doctorSelect">Select Doctor</label>
+                                <select class="form-control" id="doctorSelect" name="doctor_id" required onchange="updateSpecialty()">
+                                    <option value="" selected disabled>Choose a doctor...</option>
+                                    <?php while ($doctor = $doctorsResult->fetch_assoc()): ?>
+                                        <option value="<?= $doctor['DoctorID']; ?>" data-specialty="<?= htmlspecialchars($doctor['specialty']); ?>">
+                                            <?= htmlspecialchars($doctor['firstname']); ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="specialtySelect">Specialty</label>
+                                <select class="form-control" id="specialtySelect" name="specialty" disabled>
+                                    <option value="" selected disabled>Select a specialty...</option>
+                                </select>
+                            </div>
+
+                                <div class="form-group">
+                                    <label for="appointmentDate">Appointment Date</label>
+                                    <input type="date" class="form-control" id="appointmentDate" name="appointment_date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="appointmentTime">Appointment Time</label>
+                                    <input type="time" class="form-control" id="appointmentTime" name="appointment_time" required>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" onclick="document.getElementById('appointmentForm').submit();">Save Appointment</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Search and Filter Section -->
             <div class="mb-3">
@@ -175,7 +276,7 @@ $pastAppointments = fetchPastAppointments($conn, $patientEmail);
                                         <td><?= htmlspecialchars($appointment['doctor_name']); ?></td>
                                         <td><?= htmlspecialchars($appointment['AppointmentDate']); ?></td>
                                         <td><?= date('h:i A', strtotime($appointment['AppointmentDate'])); ?></td>
-                                        <td><span class="badge badge-success"><?= htmlspecialchars($appointment['Status']); ?></span></td>
+                                        <td><span class="badge badge-secondary"><?= htmlspecialchars($appointment['Status']); ?></span></td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else : ?>
@@ -188,43 +289,51 @@ $pastAppointments = fetchPastAppointments($conn, $patientEmail);
         </div>
     </div>
 
-    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
-
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
     <script>
+        // Function to filter appointments
         function filterAppointments() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toLowerCase();
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
             const dateFilter = document.getElementById('dateFilter').value;
-            const table = document.getElementById('appointmentsTable');
-            const tr = table.getElementsByTagName('tr');
+            const appointmentsTable = document.getElementById('appointmentsTable');
+            const rows = appointmentsTable.getElementsByTagName('tr');
 
-            for (let i = 1; i < tr.length; i++) { // Start from 1 to skip the header row
-                const tdDoctor = tr[i].getElementsByTagName('td')[0]; // Doctor's name column
-                const tdDate = tr[i].getElementsByTagName('td')[1]; // Appointment date column
-                let found = true;
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const doctorName = cells[0].textContent.toLowerCase();
+                const appointmentDate = cells[1].textContent;
 
-                if (tdDoctor) {
-                    const doctorText = tdDoctor.textContent || tdDoctor.innerText;
-                    if (doctorText.toLowerCase().indexOf(filter) === -1) {
-                        found = false; // Doctor's name doesn't match search
-                    }
+                const matchesSearch = doctorName.includes(searchInput);
+                const matchesDate = dateFilter ? appointmentDate.startsWith(dateFilter) : true;
+
+                if (matchesSearch && matchesDate) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
                 }
-
-                if (tdDate) {
-                    const appointmentDate = tdDate.textContent || tdDate.innerText;
-                    // Extract only the date part (YYYY-MM-DD)
-                    const dateOnly = appointmentDate.split(' ')[0]; // Ignore time
-                    if (dateFilter && dateOnly !== dateFilter) {
-                        found = false; // Date doesn't match filter
-                    }
-                }
-
-                tr[i].style.display = found ? "" : "none"; // Show or hide the row
             }
         }
+                // Function to update specialty based on selected doctor
+        function updateSpecialty() {
+            const doctorSelect = document.getElementById('doctorSelect');
+            const specialtySelect = document.getElementById('specialtySelect');
+            
+            // Get the selected doctor's specialty from the data attribute
+            const selectedDoctor = doctorSelect.options[doctorSelect.selectedIndex];
+            const specialty = selectedDoctor.getAttribute('data-specialty');
+
+            // Update the specialty dropdown
+            if (specialty) {
+                specialtySelect.innerHTML = `<option value="${specialty}" selected>${specialty}</option>`;
+                specialtySelect.disabled = false;
+            } else {
+                specialtySelect.innerHTML = '<option value="" selected disabled>No specialty available</option>';
+                specialtySelect.disabled = true;
+            }
+        }
+
     </script>
 </body>
 

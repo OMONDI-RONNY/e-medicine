@@ -1,8 +1,17 @@
 <?php
-// Include the database connection file
+session_start();
+
 include '../access/config.php';
 
-// Function to fetch total patients
+// Check if the admin is logged in
+if (!isset($_SESSION['username'])) {
+    // Admin is not logged in, redirect to login page
+    header("Location: login.php");
+    exit; // Ensure no further code is executed
+}
+
+
+// Function to get total number of patients
 function getTotalPatients($conn) {
     $sql = "SELECT COUNT(*) as total_patients FROM patients";
     $result = $conn->query($sql);
@@ -10,7 +19,7 @@ function getTotalPatients($conn) {
     return $row['total_patients'];
 }
 
-// Function to fetch today's appointments
+// Function to get total number of today's appointments
 function getTodaysAppointments($conn) {
     $today = date('Y-m-d');
     $sql = "SELECT COUNT(*) as total_appointments FROM appointments WHERE DATE(AppointmentDate) = '$today'";
@@ -19,7 +28,7 @@ function getTodaysAppointments($conn) {
     return $row['total_appointments'];
 }
 
-// Function to fetch active prescriptions
+// Function to get active prescriptions
 function getActivePrescriptions($conn) {
     $sql = "SELECT COUNT(*) as total_active_prescriptions FROM prescriptions WHERE status = 'Active'";
     $result = $conn->query($sql);
@@ -27,14 +36,58 @@ function getActivePrescriptions($conn) {
     return $row['total_active_prescriptions'];
 }
 
-// Fetch total patients
+// Function to search for patients or get all patients
+function getPatientData($conn, $start, $limit, $search = null) {
+    if ($search) {
+        $searchQuery = "%" . $conn->real_escape_string($search) . "%";
+        $sql = "SELECT * FROM patients WHERE firstname LIKE '$searchQuery' OR lastname LIKE '$searchQuery' LIMIT $start, $limit";
+    } else {
+        $sql = "SELECT * FROM patients LIMIT $start, $limit";
+    }
+    $result = $conn->query($sql);
+    return $result;
+}
+
+// Function to count total patients
+function countTotalPatients($conn) {
+    $sql = "SELECT COUNT(*) as total_patients FROM patients";
+    $result = $conn->query($sql);
+    $row = $result->fetch_assoc();
+    return $row['total_patients'];
+}
+
+// Add Patient Backend Processing
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_patient') {
+    $firstname = $_POST['firstName'];
+    $lastname = $_POST['lastName'];
+    $age = $_POST['age'];
+    $gender = $_POST['gender'];
+
+    $stmt = $conn->prepare("INSERT INTO patients (firstname, lastname, Age, Gender) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssis", $firstname, $lastname, $age, $gender);
+    
+    if ($stmt->execute()) {
+        echo "<script>alert('Patient added successfully!');</script>";
+    } else {
+        echo "<script>alert('Error adding patient.');</script>";
+    }
+    $stmt->close();
+}
+
+// Pagination variables
+$limit = 5; 
+$page = isset($_GET['page']) ? $_GET['page'] : 1; 
+$start = ($page - 1) * $limit; 
+
+// Search functionality
+$search = isset($_GET['search']) ? $_GET['search'] : null;
+
 $total_patients = getTotalPatients($conn);
-
-// Fetch today's appointments
 $appointments_today = getTodaysAppointments($conn);
-
-// Fetch active prescriptions
 $active_prescriptions = getActivePrescriptions($conn);
+$patient_data = getPatientData($conn, $start, $limit, $search);
+$total_patients_count = countTotalPatients($conn);
+$total_pages = ceil($total_patients_count / $limit);
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +107,6 @@ $active_prescriptions = getActivePrescriptions($conn);
             color: #333;
         }
 
-        /* Navbar Styling */
         .navbar {
             background-color: #007bff;
         }
@@ -64,18 +116,18 @@ $active_prescriptions = getActivePrescriptions($conn);
             color: white !important;
         }
 
-        /* Flex container for sidebar and content */
         .dashboard-container {
             display: flex;
+            width: 100%;
+            height: 100vh;
         }
 
-        /* Sidebar Styling */
         .sidebar {
             background-color: #007bff;
             padding: 20px;
-            flex: 0 0 250px;
-            /* Sidebar width */
+            width: 250px;
             color: white;
+            height: 100vh;
         }
 
         .sidebar .list-group-item {
@@ -84,36 +136,22 @@ $active_prescriptions = getActivePrescriptions($conn);
             border: none;
         }
 
-        /* Dashboard Styling */
         .dashboard {
             padding: 20px;
-            flex: 1;
+            flex-grow: 1;
+            margin-left: 0;
+            width: calc(100% - 250px);
         }
 
         .card {
             margin-bottom: 20px;
-            min-height: 250px;
+            min-height: 150px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
-        /* Notification Styling */
-        .notification {
-            padding: 10px;
-            border: 1px solid #007bff;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-
-        .notification h5 {
-            margin: 0;
-            font-weight: bold;
-        }
-
-        /* Overview Section */
         .overview-card {
-            background-color: #007bff;
             color: white;
             text-align: center;
             padding: 20px;
@@ -121,20 +159,36 @@ $active_prescriptions = getActivePrescriptions($conn);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            height: 100%;
+            height: auto;
+            max-height: 150px;
         }
 
         .overview-card h2 {
-            font-size: 36px;
+            font-size: 28px;
         }
 
         .overview-card p {
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .overview-card i {
-            font-size: 50px;
-            margin-bottom: 15px;
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .card-yellow {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .card-brown {
+            background-color: #F06F40FF;
+            color: white;
+        }
+
+        .card-green {
+            background-color: #28a745;
+            color: white;
         }
 
         .footer {
@@ -142,13 +196,18 @@ $active_prescriptions = getActivePrescriptions($conn);
             margin: 20px 0;
         }
 
-        /* Responsive behavior */
-        @media (max-width: 768px) {
+        .pagination {
+            justify-content: center;
+        }
 
+        .table-responsive {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
             .overview-card,
             .card {
                 margin-bottom: 30px;
-                /* Increased vertical space between cards */
             }
 
             .row {
@@ -165,135 +224,160 @@ $active_prescriptions = getActivePrescriptions($conn);
 
 <body>
 
-    <?php include 'header.php'; ?> <!-- Include the header file -->
+    <?php include 'header.php'; ?> 
 
-    <div class="dashboard-container"> <!-- Flex container for sidebar and content -->
-        <?php include 'sidebar.php'; ?> <!-- Include the sidebar file -->
+    <div class="dashboard-container"> 
+        <?php include 'sidebar.php'; ?> 
 
-        <!-- Main Dashboard Content -->
-        <div class="container dashboard">
+        <div class="container-fluid dashboard">
             <h1>Administration Dashboard</h1>
 
             <!-- Overview Section -->
             <div class="row">
-                <div class="col-md-4">
-                    <div class="overview-card">
-                        <i class="fas fa-user-injured"></i> <!-- Total Patients Icon -->
+                <div class="col-12 col-md-4">
+                    <div class="overview-card card-yellow">
+                        <i class="fas fa-user-injured"></i>
                         <h2>Total Patients</h2>
-                        <p><?php echo $total_patients; ?></p> <!-- Dynamic data -->
+                        <p><?php echo $total_patients; ?></p>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="overview-card">
-                        <i class="fas fa-calendar-check"></i> <!-- Appointments Icon -->
+                <div class="col-12 col-md-4">
+                    <div class="overview-card card-brown">
+                        <i class="fas fa-calendar-check"></i>
                         <h2>Appointments Today</h2>
-                        <p><?php echo $appointments_today; ?></p> <!-- Dynamic data -->
+                        <p><?php echo $appointments_today; ?></p>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="overview-card">
-                        <i class="fas fa-pills"></i> <!-- Active Prescriptions Icon -->
+                <div class="col-12 col-md-4">
+                    <div class="overview-card card-green">
+                        <i class="fas fa-pills"></i>
                         <h2>Active Prescriptions</h2>
-                        <p><?php echo $active_prescriptions; ?></p> <!-- Dynamic data -->
+                        <p><?php echo $active_prescriptions; ?></p>
                     </div>
                 </div>
             </div>
 
-            <!-- Pharmacy Management Section -->
+            <!-- Patient Management Section -->
             <div class="card">
                 <div class="card-header">
-                    <h5><i class="fas fa-prescription-bottle-alt"></i> Pharmacy Management</h5> <!-- Pharmacy Icon -->
+                    <h5><i class="fas fa-users"></i> Patient Management</h5>
                 </div>
                 <div class="card-body">
-                    <p>Manage prescription orders and inventory.</p>
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#addPrescriptionModal">Add
-                        Prescription</button>
-                    <table class="table table-responsive">
-                        <thead>
-                            <tr>
-                                <th>Medication</th>
-                                <th>Dosage</th>
-                                <th>Stock Level</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Medication A</td>
-                                <td>500mg</td>
-                                <td>50</td>
-                                <td><button class="btn btn-warning btn-sm">Edit</button> <button
-                                        class="btn btn-danger btn-sm">Delete</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <p>Manage patient details and medical records.</p>
+                    <form method="GET">
+                    <input type="text" id="searchInput" placeholder="Search patients..." class="form-control mb-3">
+
+                </form>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#addPatientModal">Add Patient</button>
+                    <div class="table-responsive">
+                        <table class="table" id="patientTable">
+                            <thead>
+                                <tr>
+                                    <th>Patient Name</th>
+                                    <th>Age</th>
+                                    <th>Gender</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($row = $patient_data->fetch_assoc()) { ?>
+                                    <tr>
+                                        <td><?php echo $row['firstname'] . ' ' . $row['lastname']; ?></td>
+                                        <td><?php echo $row['Age']; ?></td>
+                                        <td><?php echo $row['Gender']; ?></td>
+                                        <td><button class="btn btn-warning"><i class="fas fa-stethoscope"></i> Patient Visit</button></td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Patient pagination">
+                        <ul class="pagination">
+                            <?php for ($i = 1; $i <= $total_pages; $i++) { ?>
+                                <li class="page-item <?php if ($i == $page) echo 'active'; ?>"><a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a></li>
+                            <?php } ?>
+                        </ul>
+                    </nav>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Laboratory Management Section -->
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-flask"></i> Laboratory Management</h5> <!-- Laboratory Icon -->
+    <!-- Modal for adding a patient -->
+    <div class="modal fade" id="addPatientModal" tabindex="-1" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPatientModalLabel">Add New Patient</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="card-body">
-                    <p>Log patient samples and manage test results.</p>
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#addTestResultModal">Add Test
-                        Result</button>
-                    <table class="table table-responsive">
-                        <thead>
-                            <tr>
-                                <th>Patient</th>
-                                <th>Test</th>
-                                <th>Date</th>
-                                <th>Result</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>John Doe</td>
-                                <td>Blood Test</td>
-                                <td>2024-10-01</td>
-                                <td>Normal</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Finance Management Section -->
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-money-check-alt"></i> Finance Management</h5> <!-- Finance Icon -->
-                </div>
-                <div class="card-body">
-                    <p>Handle billing and invoicing processes.</p>
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#addInvoiceModal">Add Invoice</button>
-                    <table class="table table-responsive">
-                        <thead>
-                            <tr>
-                                <th>Patient</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Jane Smith</td>
-                                <td>$100</td>
-                                <td><span class="badge badge-success">Paid</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="modal-body">
+                    <form id="addPatientForm" method="POST">
+                        <input type="hidden" name="action" value="add_patient">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" class="form-control" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" class="form-control" id="lastName" name="lastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input type="number" class="form-control" id="age" name="age" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select class="form-control" id="gender" name="gender" required>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add Patient</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div> <!-- End of Dashboard Content -->
-    </div> <!-- End of Dashboard Container -->
+        </div>
+    </div>
+    <script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const query = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#patientTable tbody tr');
 
-    <footer class="footer">
-        <p>&copy; 2024 E-Medicine. All rights reserved.</p>
-    </footer>
+        rows.forEach(row => {
+            const cells = row.getElementsByTagName('td');
+            let found = false;
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            // Check each cell in the row for a match
+            for (let i = 0; i < cells.length; i++) {
+                const cellText = cells[i].textContent.toLowerCase();
+                if (cellText.includes(query)) {
+                    found = true; // Match found
+                    break; // No need to check further cells
+                }
+            }
+
+            // Show or hide the row based on the search match
+            if (found) {
+                row.style.display = ''; // Show the row
+            } else {
+                row.style.display = 'none'; // Hide the row
+            }
+        });
+    });
+</script>
+
+
+    <!-- Include scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 

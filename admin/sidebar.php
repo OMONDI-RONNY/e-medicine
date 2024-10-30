@@ -6,32 +6,33 @@
 <div class="sidebar" id="sidebar">
     <h2 class="sidebar-title">Admin Dashboard</h2>
     <ul class="list-group">
-        <li class="list-group-item">
-            <a href="#"><i class="fas fa-users"></i> Users</a>
+    <li class="list-group-item">
+            <a href="index.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
         </li>
         <li class="list-group-item">
-            <a href="#"><i class="fas fa-calendar-check"></i> Appointments</a>
+            <a href="users.php"><i class="fas fa-users"></i> Users</a>
         </li>
         <li class="list-group-item">
-            <a href="#"><i class="fas fa-prescription-bottle-alt"></i> Prescriptions</a>
+            <a href="appoints.php"><i class="fas fa-calendar-check"></i> Appointments</a>
         </li>
         <li class="list-group-item">
-            <a href="#"><i class="fas fa-pills"></i> Pharmacy</a>
+            <a href="prescription.php"><i class="fas fa-prescription-bottle-alt"></i> Prescriptions</a>
+        </li>
+       
+        <li class="list-group-item">
+            <a href="lab.php"><i class="fas fa-vial"></i> Laboratory</a>
         </li>
         <li class="list-group-item">
-            <a href="#"><i class="fas fa-vial"></i> Laboratory</a>
+            <a href="finance.php"><i class="fas fa-dollar-sign"></i> Finance</a>
         </li>
         <li class="list-group-item">
-            <a href="#"><i class="fas fa-dollar-sign"></i> Finance</a>
-        </li>
-        <li class="list-group-item">
-            <a href="#"><i class="fas fa-chart-bar"></i> Reports</a>
+            <a href="reports.php"><i class="fas fa-chart-bar"></i> Reports</a>
         </li>
         <li class="list-group-item">
             <a href="#"><i class="fas fa-cogs"></i> Settings</a>
         </li>
         <li class="list-group-item">
-            <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </li>
     </ul>
 </div>
@@ -48,7 +49,7 @@
         background-color: #007bff;
         padding: 20px;
         margin-right: 20px;
-        flex: 0 0 450px;
+        flex: 0 0 250px;
         height: auto;
         transition: transform 0.3s ease;
         margin-top: 20px;
