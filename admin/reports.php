@@ -1,37 +1,36 @@
 <?php
 session_start();
-include '../access/config.php'; // Include your database connection
-
+include '../access/config.php';
 if (!isset($_SESSION['username'])) {
-    // Admin is not logged in, redirect to login page
+   
     header("Location: login.php");
-    exit; // Ensure no further code is executed
+    exit; 
 }
 
-// Handle report generation
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_report'])) {
     $reportType = $_POST['report_type'];
 
-    // Generate PDF logic
-    require_once 'tcpdf/tcpdf.php'; // Ensure the path is correct
+    
+    require_once 'tcpdf/tcpdf.php'; 
 
-    // Create new PDF document
+   
     $pdf = new TCPDF();
 
-    // Set document information
+   
     $pdf->SetCreator(PDF_CREATOR);
     $pdf->SetAuthor('E-Medicine System');
     $pdf->SetTitle($reportType);
     $pdf->SetHeaderData('', 0, 'Report: ' . $reportType, 'Generated on: ' . date('Y-m-d H:i:s'));
 
-    // Set margins
+   
     $pdf->SetMargins(15, 15, 15);
     $pdf->SetAutoPageBreak(TRUE, 15);
     $pdf->AddPage();
 
-    // Add content based on report type
+  
     if ($reportType === 'Patient Summary Report') {
-        // Fetch data from patients and health_records
+       
         $result = $conn->query("SELECT p.PatientID, p.firstname, COUNT(hr.RecordID) AS RecordCount 
                                  FROM patients p 
                                  LEFT JOIN healthrecords hr ON p.PatientID = hr.PatientID 
@@ -52,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_report'])) {
         }
         $html .= '</table>';
     } elseif ($reportType === 'Appointment Report') {
-        // Fetch data from appointments
+        
         $result = $conn->query("SELECT * FROM appointments");
         $html = '<h1>Appointment Report</h1>
                  <table border="1" cellpadding="5">
@@ -74,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_report'])) {
         }
         $html .= '</table>';
     } elseif ($reportType === 'Prescription Report') {
-        // Fetch data from prescriptions (adjust fields as per your database structure)
+       
         $query = "SELECT pr.PrescriptionID, p.firstname, pr.Instructions, pr.CreatedAt 
                   FROM prescriptions pr 
                   JOIN patients p ON pr.PatientID = p.PatientID";
@@ -82,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_report'])) {
         $result = $conn->query($query);
     
         if (!$result) {
-            // Output the error message
+           
             die("Query Error: " . $conn->error);
         }
     
@@ -106,16 +105,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_report'])) {
     }
     
 
-    // Output the HTML content
     $pdf->writeHTML($html, true, false, true, false, '');
 
-    // Close and output PDF document
+ 
     $fileName = $reportType . '_' . date('YmdHis') . '.pdf';
-    $pdf->Output($fileName, 'D'); // 'D' for download, 'I' for inline view
-    exit; // Stop script execution
+    $pdf->Output($fileName, 'D'); 
+    exit; 
 }
 
-// Fetch reports from the database
+
 
 ?>
 
@@ -148,12 +146,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_report'])) {
             display: flex;
         }
 
-        
         .container {
-    padding: 20px;
-    flex-grow: 1;
-    margin-left: -20px; /* Adjust this to move the container closer to the sidebar */
-}
+            padding: 20px;
+            margin: 0;
+            max-width: 100%;
+            flex-grow: 1;
+        }
 
         .page-header h1 {
             font-size: 2rem;
@@ -211,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_report'])) {
 
           
 
-            <!-- Generate Report Modal -->
+          
             <div class="modal fade" id="generateReportModal" tabindex="-1" role="dialog" aria-labelledby="generateReportModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -244,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_report'])) {
         </div>
     </div>
 
-    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
+    <?php include '../resources/includes/footer.php'; ?> 
 
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

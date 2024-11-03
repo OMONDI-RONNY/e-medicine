@@ -1,38 +1,38 @@
 <?php
-session_start(); // Start the session
+session_start();
 
-// Include the database configuration
+
 include '../access/config.php';
 
-// Check if the user is logged in
+
 if (!isset($_SESSION['doctor_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// Process form submission for updating the prescription
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['prescriptionID'], $_POST['dosage'], $_POST['instructions'], $_POST['refills'], $_POST['medication'])) {
-    // Sanitize and retrieve form inputs
+   
     $prescriptionID = (int) $_POST['prescriptionID'];
     $dosage = $conn->real_escape_string($_POST['dosage']);
     $instructions = $conn->real_escape_string($_POST['instructions']);
     $refills = (int) $_POST['refills'];
-    $medication = $conn->real_escape_string($_POST['medication']); // Ensure medication is treated as a string
+    $medication = $conn->real_escape_string($_POST['medication']); 
 
-    // Prepare the SQL statement to update the prescription
+    
     $stmt = $conn->prepare("
         UPDATE prescriptions 
         SET Dosage = ?, Instructions = ?, RefillsRemaining = ?, Medication = ?, Status = 'completed', CreatedAt = NOW()
         WHERE PrescriptionID = ?
     ");
 
-    // Check if prepare was successful
+  
     if ($stmt === false) {
         die('Prepare failed: ' . htmlspecialchars($conn->error));
     }
 
-    // Bind parameters and execute
-    // The first four parameters are strings (s), and the last one is an integer (i)
+  
+   
     $stmt->bind_param("ssssi", $dosage, $instructions, $medication, $refills, $prescriptionID);
 
     if ($stmt->execute()) {
@@ -41,11 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['prescriptionID'], $_P
         echo "<script>alert('Error updating prescription. Please try again.'); window.location.href = 'prescription.php';</script>";
     }
 
-    // Close the statement
+ 
     $stmt->close();
 }
 
-// Prepare the SQL statement for retrieving prescriptions with medication from the laboratory table
+
 $stmt = $conn->prepare("
     SELECT p.firstname AS PatientName, p.lastname AS PatientLastName, pr.PrescriptionID, l.Result AS Medication, pr.Dosage, pr.CreatedAt
     FROM prescriptions pr
@@ -55,21 +55,21 @@ $stmt = $conn->prepare("
     WHERE a.DoctorID = ?
 ");
 
-// Check if prepare was successful
+
 if ($stmt === false) {
     die('Prepare failed: ' . htmlspecialchars($conn->error));
 }
 
-// Bind parameters and execute
+
 $stmt->bind_param("s", $_SESSION['doctor_id']);
 $stmt->execute();
 $result = $stmt->get_result();
 $prescriptions = $result->fetch_all(MYSQLI_ASSOC);
 
-// Close the statement
+
 $stmt->close();
 
-// Close the database connection
+
 $conn->close();
 ?>
 
@@ -98,7 +98,9 @@ $conn->close();
         }
         .container {
             padding: 20px;
-            flex: 1;
+            margin: 0;
+            max-width: 100%;
+            flex-grow: 1;
         }
         .card {
             margin-bottom: 20px;
@@ -200,7 +202,7 @@ $conn->close();
         var medication = button.data('medication');
         var modal = $(this);
         modal.find('#prescriptionID').val(prescriptionID);
-        modal.find('#medication').val(medication); // This ensures medication is read-only and passed correctly
+        modal.find('#medication').val(medication); 
     });
 </script>
 </body>

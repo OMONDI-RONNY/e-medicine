@@ -3,15 +3,15 @@ session_start();
 
 include '../access/config.php';
 
-// Check if the admin is logged in
+
 if (!isset($_SESSION['username'])) {
-    // Admin is not logged in, redirect to login page
+    
     header("Location: login.php");
-    exit; // Ensure no further code is executed
+    exit; 
 }
 
 
-// Function to get total number of patients
+
 function getTotalPatients($conn) {
     $sql = "SELECT COUNT(*) as total_patients FROM patients";
     $result = $conn->query($sql);
@@ -19,7 +19,7 @@ function getTotalPatients($conn) {
     return $row['total_patients'];
 }
 
-// Function to get total number of today's appointments
+
 function getTodaysAppointments($conn) {
     $today = date('Y-m-d');
     $sql = "SELECT COUNT(*) as total_appointments FROM appointments WHERE DATE(AppointmentDate) = '$today'";
@@ -28,7 +28,7 @@ function getTodaysAppointments($conn) {
     return $row['total_appointments'];
 }
 
-// Function to get active prescriptions
+
 function getActivePrescriptions($conn) {
     $sql = "SELECT COUNT(*) as total_active_prescriptions FROM prescriptions WHERE status = 'Active'";
     $result = $conn->query($sql);
@@ -36,7 +36,7 @@ function getActivePrescriptions($conn) {
     return $row['total_active_prescriptions'];
 }
 
-// Function to search for patients or get all patients
+
 function getPatientData($conn, $start, $limit, $search = null) {
     if ($search) {
         $searchQuery = "%" . $conn->real_escape_string($search) . "%";
@@ -48,7 +48,7 @@ function getPatientData($conn, $start, $limit, $search = null) {
     return $result;
 }
 
-// Function to count total patients
+
 function countTotalPatients($conn) {
     $sql = "SELECT COUNT(*) as total_patients FROM patients";
     $result = $conn->query($sql);
@@ -56,7 +56,7 @@ function countTotalPatients($conn) {
     return $row['total_patients'];
 }
 
-// Add Patient Backend Processing
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_patient') {
     $firstname = $_POST['firstName'];
     $lastname = $_POST['lastName'];
@@ -74,12 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $stmt->close();
 }
 
-// Pagination variables
+
 $limit = 5; 
 $page = isset($_GET['page']) ? $_GET['page'] : 1; 
 $start = ($page - 1) * $limit; 
 
-// Search functionality
+
 $search = isset($_GET['search']) ? $_GET['search'] : null;
 
 $total_patients = getTotalPatients($conn);
@@ -232,7 +232,7 @@ $total_pages = ceil($total_patients_count / $limit);
         <div class="container-fluid dashboard">
             <h1>Administration Dashboard</h1>
 
-            <!-- Overview Section -->
+          
             <div class="row">
                 <div class="col-12 col-md-4">
                     <div class="overview-card card-yellow">
@@ -257,7 +257,7 @@ $total_pages = ceil($total_patients_count / $limit);
                 </div>
             </div>
 
-            <!-- Patient Management Section -->
+          
             <div class="card">
                 <div class="card-header">
                     <h5><i class="fas fa-users"></i> Patient Management</h5>
@@ -285,14 +285,20 @@ $total_pages = ceil($total_patients_count / $limit);
                                         <td><?php echo $row['firstname'] . ' ' . $row['lastname']; ?></td>
                                         <td><?php echo $row['Age']; ?></td>
                                         <td><?php echo $row['Gender']; ?></td>
-                                        <td><button class="btn btn-warning"><i class="fas fa-stethoscope"></i> Patient Visit</button></td>
+                                        <td>
+                                        <button class="btn btn-warning" 
+                                                onclick="showPatientDetails('<?php echo $row['firstname']; ?>', '<?php echo $row['lastname']; ?>', '<?php echo $row['Age']; ?>', '<?php echo $row['Gender']; ?>')">
+                                            <i class="fas fa-stethoscope"></i> Patient View
+                                        </button>
+                                    </td>
+
                                     </tr>
                                 <?php } ?>
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Pagination -->
+            
                     <nav aria-label="Patient pagination">
                         <ul class="pagination">
                             <?php for ($i = 1; $i <= $total_pages; $i++) { ?>
@@ -305,7 +311,7 @@ $total_pages = ceil($total_patients_count / $limit);
         </div>
     </div>
 
-    <!-- Modal for adding a patient -->
+   
     <div class="modal fade" id="addPatientModal" tabindex="-1" aria-labelledby="addPatientModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -346,6 +352,29 @@ $total_pages = ceil($total_patients_count / $limit);
             </div>
         </div>
     </div>
+    <div class="modal fade" id="viewPatientModal" tabindex="-1" aria-labelledby="viewPatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewPatientModalLabel">Patient Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>First Name:</strong> <span id="viewFirstName"></span></p>
+                <p><strong>Last Name:</strong> <span id="viewLastName"></span></p>
+                <p><strong>Age:</strong> <span id="viewAge"></span></p>
+                <p><strong>Gender:</strong> <span id="viewGender"></span></p>
+                <!-- Add more fields if needed -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <script>
     document.getElementById('searchInput').addEventListener('keyup', function() {
         const query = this.value.toLowerCase();
@@ -355,27 +384,36 @@ $total_pages = ceil($total_patients_count / $limit);
             const cells = row.getElementsByTagName('td');
             let found = false;
 
-            // Check each cell in the row for a match
             for (let i = 0; i < cells.length; i++) {
                 const cellText = cells[i].textContent.toLowerCase();
                 if (cellText.includes(query)) {
-                    found = true; // Match found
-                    break; // No need to check further cells
+                    found = true;
+                    break;
                 }
             }
 
-            // Show or hide the row based on the search match
+           
             if (found) {
-                row.style.display = ''; // Show the row
+                row.style.display = ''; 
             } else {
-                row.style.display = 'none'; // Hide the row
+                row.style.display = 'none'; 
             }
         });
     });
+    function showPatientDetails(firstName, lastName, age, gender) {
+    document.getElementById('viewFirstName').textContent = firstName;
+    document.getElementById('viewLastName').textContent = lastName;
+    document.getElementById('viewAge').textContent = age;
+    document.getElementById('viewGender').textContent = gender;
+
+    
+    $('#viewPatientModal').modal('show');
+}
+
 </script>
 
 
-    <!-- Include scripts -->
+    
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

@@ -1,7 +1,5 @@
 <?php
-// sidebar.php
 
-// Start of the sidebar HTML structure
 ?>
 <div class="sidebar" id="sidebar">
     <h2 class="sidebar-title">Admin Dashboard</h2>
@@ -28,23 +26,20 @@
         <li class="list-group-item">
             <a href="reports.php"><i class="fas fa-chart-bar"></i> Reports</a>
         </li>
-        <li class="list-group-item">
-            <a href="#"><i class="fas fa-cogs"></i> Settings</a>
-        </li>
+        
         <li class="list-group-item">
             <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </li>
     </ul>
 </div>
 
-<!-- Toggle Button for Mobile -->
+
 <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
 
-<!-- Add Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <style>
-    /* Sidebar Styling */
+    
     .sidebar {
         background-color: #007bff;
         padding: 20px;
@@ -56,14 +51,14 @@
         margin-bottom: 10px;
     }
 
-    /* Sidebar Title */
+  
     .sidebar-title {
         font-size: 1.5rem;
         margin-bottom: 20px;
         color: white;
     }
 
-    /* Remove background color from list items */
+    
     .list-group-item {
         background-color: transparent;
         border: none;
@@ -81,12 +76,12 @@
         margin-right: 10px;
     }
 
-    /* Hover effect for links */
+   
     .list-group-item a:hover {
         color: #cce7ff;
     }
 
-    /* Sidebar Toggle Button */
+    
     .sidebar-toggle {
         display: none;
         position: fixed;

@@ -1,28 +1,28 @@
 <?php
-// prescriptions.php
 
-// Include the database configuration file
+
+
 include '../access/config.php';
 
-// Start session
+
 session_start();
 
-// Check if the user is logged in
+
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php"); // Redirect to login page if not logged in
+    header("Location: login.php"); 
     exit();
 }
 
-// Get the email from the session
-$userEmail = $_SESSION['user_id']; // Assuming 'user_id' corresponds to the email
 
-// Fetch the PatientID using the user's email
+$userEmail = $_SESSION['user_id']; 
+
+
 $query = "SELECT PatientID FROM patients WHERE email = ?";
 $stmt = $conn->prepare($query);
 
 if ($stmt === false) {
-    error_log("Prepare failed: " . $conn->error); // Log error message
-    die("MySQL Prepare Error: " . $conn->error); // Debugging: show error
+    error_log("Prepare failed: " . $conn->error); 
+    die("MySQL Prepare Error: " . $conn->error); 
 }
 
 $stmt->bind_param("s", $userEmail);
@@ -31,12 +31,12 @@ $stmt->bind_result($patientId);
 $stmt->fetch();
 $stmt->close();
 
-// Debugging: check if PatientID is correctly retrieved
+
 if (!$patientId) {
     die("Error: Patient ID not found for the logged-in user.");
 }
 
-// Helper function to fetch active prescriptions for the logged-in patient
+
 function fetchActivePrescriptions($conn, $patientId) {
     $query = "SELECT l.Result AS Medication, p.Dosage, p.RefillsRemaining, d.firstname AS doctor_name 
               FROM prescriptions p 
@@ -48,8 +48,8 @@ function fetchActivePrescriptions($conn, $patientId) {
     $stmt = $conn->prepare($query);
     
     if ($stmt === false) {
-        error_log("Prepare failed: " . $conn->error); // Log error message
-        die("MySQL Prepare Error: " . $conn->error); // Debugging: show error
+        error_log("Prepare failed: " . $conn->error); 
+        die("MySQL Prepare Error: " . $conn->error);
     }
     
     $stmt->bind_param("i", $patientId);
@@ -59,7 +59,7 @@ function fetchActivePrescriptions($conn, $patientId) {
 }
 
 
-// Helper function to fetch prescription history for the logged-in patient
+
 function fetchPrescriptionHistory($conn, $patientId) {
     $query = "SELECT l.Result AS Medication, p.Dosage, p.CreatedAt, p.Status 
               FROM prescriptions p 
@@ -71,8 +71,8 @@ function fetchPrescriptionHistory($conn, $patientId) {
     $stmt = $conn->prepare($query);
     
     if ($stmt === false) {
-        error_log("Prepare failed: " . $conn->error); // Log error message
-        die("MySQL Prepare Error: " . $conn->error); // Debugging: show error
+        error_log("Prepare failed: " . $conn->error); 
+        die("MySQL Prepare Error: " . $conn->error); 
     }
     
     $stmt->bind_param("i", $patientId);
@@ -82,7 +82,7 @@ function fetchPrescriptionHistory($conn, $patientId) {
 }
 
 
-// Fetch active prescriptions and prescription history for the logged-in patient
+
 $activePrescriptions = fetchActivePrescriptions($conn, $patientId);
 $prescriptionHistory = fetchPrescriptionHistory($conn, $patientId);
 ?>
@@ -223,7 +223,7 @@ $prescriptionHistory = fetchPrescriptionHistory($conn, $patientId);
             const medicationInput = document.getElementById('medicationSearch').value.toLowerCase();
             const dateFilter = document.getElementById('dateFilter').value;
 
-            // Filter active prescriptions
+           
             const activeTable = document.getElementById('activePrescriptionsTable');
             const activeRows = activeTable.getElementsByTagName('tr');
 
@@ -242,7 +242,7 @@ $prescriptionHistory = fetchPrescriptionHistory($conn, $patientId);
                 activeRows[i].style.display = showRow ? '' : 'none';
             }
 
-            // Filter prescription history
+            
             const historyTable = document.getElementById('prescriptionHistoryTable');
             const historyRows = historyTable.getElementsByTagName('tr');
 

@@ -1,47 +1,46 @@
 <?php
-session_start(); // Start the session
+session_start(); 
 
-// Include your database connection settings
-include '../access/config.php'; // Update with your path
-
+include '../access/config.php'; 
 
 
-// Initialize error variable
+
+
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get user input
+    
     $inputUsername = $conn->real_escape_string($_POST['username']);
     $inputPassword = $_POST['password'];
 
-    // Query to fetch the admin details
+    
     $sql = "SELECT AdminID, Password FROM admins WHERE Username='$inputUsername'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
-        // Fetch the admin record
+        
         $row = $result->fetch_assoc();
 
-        // Verify password
+       
         if (password_verify($inputPassword, $row['Password'])) {
-            // Store user session
+           
            
           $_SESSION['username'] = $inputUsername;
 
-            // Redirect to index.php upon successful login
+         
             header("Location: index.php");
             exit();
         } else {
-            // Incorrect password
+            
             $error = "Invalid username or password.";
         }
     } else {
-        // No user found
+        
         $error = "Invalid username or password.";
     }
 }
 
-// Close the connection
+
 $conn->close();
 ?>
 
@@ -118,7 +117,7 @@ $conn->close();
     <div class="login-container">
         <h2><i class="fas fa-user-shield"></i> Admin Login</h2>
         
-        <!-- Display error message if there's an error -->
+        
         <?php if (!empty($error)): ?>
             <div class="error-message"><?php echo $error; ?></div>
         <?php endif; ?>
@@ -133,7 +132,7 @@ $conn->close();
             <button type="submit" class="btn btn-primary btn-block">Login <i class="fas fa-sign-in-alt"></i></button>
         </form>
         <div class="forgot-password">
-            <a href="forgot_password.php">Forgot Password?</a>
+            <a href="../resources/includes/forgot.php">Forgot Password?</a>
         </div>
     </div>
 

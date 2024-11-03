@@ -1,16 +1,16 @@
 <?php
-session_start(); // Start the session
+session_start();
 
-// Include the database configuration
+
 include '../access/config.php';
 
-// Check if the user is logged in
+
 if (!isset($_SESSION['doctor_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// Prepare the SQL statement with error handling
+
 $stmt = $conn->prepare("
     SELECT a.AppointmentDate, a.CreatedAt, a.Status, p.firstname 
     FROM appointments a 
@@ -18,15 +18,15 @@ $stmt = $conn->prepare("
     WHERE a.doctorID = ?
 ");
 
-// Check if prepare was successful
+
 if ($stmt === false) {
     die('Prepare failed: ' . htmlspecialchars($conn->error));
 }
 
-// Bind parameters and execute
+
 $stmt->bind_param("s", $_SESSION['doctor_id']);
 
-// Check for execution errors
+
 if ($stmt->execute() === false) {
     die('Execute failed: ' . htmlspecialchars($stmt->error));
 }
@@ -34,7 +34,7 @@ if ($stmt->execute() === false) {
 $result = $stmt->get_result();
 $appointments = $result->fetch_all(MYSQLI_ASSOC);
 
-// Close the statement and connection
+
 $stmt->close();
 $conn->close();
 ?>
@@ -67,18 +67,18 @@ $conn->close();
             padding: 20px;
         }
         #calendar {
-            width: 100%; /* Make the calendar take full width */
-            max-height: 80vh; /* Limit height for better visibility */
-            overflow: auto; /* Allow scrolling if necessary */
+            width: 100%; 
+            max-height: 80vh;
+            overflow: auto; 
         }
         .fc-day.fc-day-today {
-            background-color: #e1f5fe; /* Highlight today's date */
+            background-color: #e1f5fe;
         }
         .fc-event {
-            background-color: #007bff; /* Event background color */
-            color: white; /* Event text color */
-            border-radius: 5px; /* Rounded corners for events */
-            padding: 5px; /* Space inside event */
+            background-color: #007bff;
+            color: white; 
+            border-radius: 5px; 
+            padding: 5px; 
         }
     </style>
 </head>
@@ -119,7 +119,7 @@ $conn->close();
                 },
                 dayRender: function(info) {
                     if (info.date.getTime() === new Date().setHours(0,0,0,0)) {
-                        info.el.style.backgroundColor = '#e1f5fe'; // Highlight today's date
+                        info.el.style.backgroundColor = '#e1f5fe'; 
                     }
                 }
             });

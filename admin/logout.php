@@ -1,17 +1,17 @@
 <?php
-session_start(); // Start the session
+session_start(); 
 
-// Unset all session variables
+
 $_SESSION = [];
 
-// Destroy the session if it exists
+
 if (session_id() != '') {
-    session_destroy(); // Destroy the session
+    session_destroy(); 
 }
 
-// Show a message before redirecting
+
 $message = "You have successfully logged out of the admin module. Redirecting to the login page...";
-header("refresh:3; url=../index.php"); // Redirect after 3 seconds
+header("refresh:3; url=../index.php"); 
 ?>
 
 <!DOCTYPE html>

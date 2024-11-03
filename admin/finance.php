@@ -1,13 +1,13 @@
 <?php
 session_start();
-include '../access/config.php'; // Include the database configuration
+include '../access/config.php'; 
 if (!isset($_SESSION['username'])) {
-    // Admin is not logged in, redirect to login page
+    
     header("Location: login.php");
-    exit; // Ensure no further code is executed
+    exit; 
 }
 
-// Fetch finance data
+
 function fetchFinanceData($conn) {
     $query = "SELECT FinanceID, PatientID, Amount, Description, PaymentStatus, PaymentDate FROM finance";
     $result = mysqli_query($conn, $query);
@@ -21,7 +21,7 @@ function fetchFinanceData($conn) {
     return $financeData;
 }
 
-// Handle Update
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update') {
     $id = $_POST['FinanceID'];
     $amount = $_POST['Amount'];
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit;
 }
 
-// Handle Delete
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
     $id = $_POST['FinanceID'];
     
@@ -67,10 +67,11 @@ mysqli_close($conn);
         .dashboard { display: flex; }
         
         .container {
-    padding: 20px;
-    flex-grow: 1;
-    margin-left: -20px; /* Adjust this to move the container closer to the sidebar */
-}
+            padding: 20px;
+            margin: 0;
+            max-width: 100%;
+            flex-grow: 1;
+        }
         .page-header h1 { font-size: 2rem; color: #007bff; }
         .page-header p { font-size: 1.1rem; color: #666; }
         .finance-table table { width: 100%; border-collapse: collapse; margin-top: 15px; }

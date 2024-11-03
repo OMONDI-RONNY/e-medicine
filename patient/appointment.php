@@ -1,22 +1,22 @@
 <?php
-// appointments.php
 
-// Include database configuration
+
+
 include '../access/config.php'; 
 
-// Start session
+
 session_start();
 
-// Check if the user is logged in
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php"); 
     exit();
 }
 
-// Get the patient's email from the session
+
 $patientEmail = $_SESSION['user_id'];
 
-// Helper functions to fetch appointments (unchanged)
+
 function fetchUpcomingAppointments($conn, $patientEmail) {
     $currentDate = date('Y-m-d H:i:s');
     $query = "SELECT d.firstname AS doctor_name, a.AppointmentDate, a.Status 
@@ -98,7 +98,6 @@ $doctorsResult = $conn->query($doctorsQuery);
             margin-bottom: 20px;
         }
 
-        /* Modal Styling */
         .modal-header {
             background-color: #007bff;
             color: white;
@@ -108,16 +107,16 @@ $doctorsResult = $conn->query($doctorsQuery);
             background-color: #007bff;
         }
 
-        /* Button Styling */
+        
         .btn-appointment {
             margin-bottom: 20px;
-            background-color: #28a745 !important; /* Force green color by default */
+            background-color: #28a745 !important; 
             color: white !important;
             border-radius: 50px;
             padding: 15px 30px;
             font-size: 18px;
             transition: 0.3s ease-in-out;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slight shadow for better visibility */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
             font-weight: bold;
             border: none;
         }
@@ -127,8 +126,8 @@ $doctorsResult = $conn->query($doctorsQuery);
         }
 
         .btn-appointment:hover {
-            background-color: #218838 !important; /* Darker green on hover */
-            transform: scale(1.05); /* Slight scaling on hover */
+            background-color: #218838 !important; 
+            transform: scale(1.05); 
         }
 
         .modal-body {
@@ -161,12 +160,12 @@ $doctorsResult = $conn->query($doctorsQuery);
         <div class="dashboard-content">
             <h1>My Appointments</h1>
 
-            <!-- Appointment Button -->
+            
             <button class="btn btn-appointment" data-toggle="modal" data-target="#appointmentModal">
                 <i class="fas fa-calendar-plus"></i> Make an Appointment
             </button>
 
-            <!-- Appointment Modal -->
+            
             <div class="modal fade" id="appointmentModal" tabindex="-1" role="dialog" aria-labelledby="appointmentModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -215,13 +214,13 @@ $doctorsResult = $conn->query($doctorsQuery);
                 </div>
             </div>
 
-            <!-- Search and Filter Section -->
+            
             <div class="mb-3">
                 <input type="text" id="searchInput" class="form-control" placeholder="Search by Doctor's Name..." onkeyup="filterAppointments()">
                 <input type="date" id="dateFilter" class="form-control mt-2" onchange="filterAppointments()">
             </div>
 
-            <!-- Upcoming Appointments -->
+           
             <div class="card">
                 <div class="card-header">
                     <h5>Upcoming Appointments</h5>
@@ -254,7 +253,7 @@ $doctorsResult = $conn->query($doctorsQuery);
                 </div>
             </div>
 
-            <!-- Past Appointments -->
+           
             <div class="card">
                 <div class="card-header">
                     <h5>Past Appointments</h5>
@@ -293,7 +292,7 @@ $doctorsResult = $conn->query($doctorsQuery);
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        // Function to filter appointments
+        
         function filterAppointments() {
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
             const dateFilter = document.getElementById('dateFilter').value;
@@ -315,16 +314,16 @@ $doctorsResult = $conn->query($doctorsQuery);
                 }
             }
         }
-                // Function to update specialty based on selected doctor
+                
         function updateSpecialty() {
             const doctorSelect = document.getElementById('doctorSelect');
             const specialtySelect = document.getElementById('specialtySelect');
             
-            // Get the selected doctor's specialty from the data attribute
+            
             const selectedDoctor = doctorSelect.options[doctorSelect.selectedIndex];
             const specialty = selectedDoctor.getAttribute('data-specialty');
 
-            // Update the specialty dropdown
+            
             if (specialty) {
                 specialtySelect.innerHTML = `<option value="${specialty}" selected>${specialty}</option>`;
                 specialtySelect.disabled = false;

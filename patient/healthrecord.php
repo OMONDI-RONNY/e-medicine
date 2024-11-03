@@ -1,8 +1,8 @@
 <?php
-// health_records.php
 
-// Include database configuration
-include '../access/config.php'; // Assuming this file contains your mysqli connection code
+
+
+include '../access/config.php'; 
 require 'phpmailer/src/Exception.php';
 require 'phpmailer/src/PHPMailer.php';
 require 'phpmailer/src/SMTP.php';
@@ -10,19 +10,19 @@ require 'phpmailer/src/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Start session
+
 session_start();
 
-// Check if the user is logged in
+
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php"); // Redirect to login page if not logged in
+    header("Location: login.php");
     exit();
 }
 
-// Get the patient's email from the session
+
 $patientEmail = $_SESSION['user_id'];
 
-// Helper function to fetch PatientID from patients table
+
 function getPatientId($conn, $email) {
     $query = "SELECT PatientID FROM patients WHERE Email = ?";
     $stmt = $conn->prepare($query);
@@ -40,7 +40,7 @@ function getPatientId($conn, $email) {
     return $patientId;
 }
 
-// Helper function to fetch health records
+
 function fetchHealthRecords($conn, $patientId) {
     $query = "SELECT hr.CreatedAt, hr.Description, d.firstname AS doctor_name
               FROM healthrecords hr
@@ -60,13 +60,13 @@ function fetchHealthRecords($conn, $patientId) {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-// Handle email sharing
+
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['share'])) {
-    $doctorEmail = $_POST['doctor_email']; // Replace with your actual form field name
+    $doctorEmail = $_POST['doctor_email']; 
     $healthRecords = fetchHealthRecords($conn, getPatientId($conn, $patientEmail));
 
-    // Prepare the content for the email
+    
     $recordContent = "<h1>Health Records</h1>";
     $recordContent .= "<table border='1' cellpadding='10'><tr><th>Date</th><th>Diagnosis</th><th>Doctor</th></tr>";
     foreach ($healthRecords as $record) {
@@ -74,39 +74,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['share'])) {
     }
     $recordContent .= "</table>";
 
-    // Configure PHPMailer
+
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'omoron37@gmail.com'; // Your Gmail address
-        $mail->Password = 'uxrgdwpdpujljjdf'; // Your app-specific password
+        $mail->Username = 'omoron37@gmail.com'; 
+        $mail->Password = 'rdewem wbej mxoc zoox';
         $mail->SMTPSecure = 'ssl';
         $mail->Port = 465;
 
-        // Set email details
-        $mail->setFrom('your-email@gmail.com', 'E-Medicine System');
+        
+        $mail->setFrom('omoron37@gmail.com', 'E-Medicine System');
         $mail->addAddress($doctorEmail);
         $mail->isHTML(true);
         $mail->Subject = "Patient Health Records";
         $mail->Body = $recordContent;
 
-        // Send email
+       
         if ($mail->send()) {
             echo "<script>alert('Health records sent to doctor successfully.');</script>";
         }
     } catch (Exception $e) {
         $error = "Failed to send email: {$mail->ErrorInfo}";
         echo "<script>alert('$error');</script>";
-        error_log("Mailer Error: " . $mail->ErrorInfo); // Log error for deeper analysis
+        error_log("Mailer Error: " . $mail->ErrorInfo);
     }
 }
 
-// Get the PatientID from the patients table using the email
+
 $patientId = getPatientId($conn, $patientEmail);
 
-// Fetch health records
+
 $healthRecords = fetchHealthRecords($conn, $patientId);
 ?>
 
@@ -188,23 +188,7 @@ $healthRecords = fetchHealthRecords($conn, $patientId);
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5>Share Health Records</h5>
-                </div>
-                <div class="card-body">
-                    <form method="POST">
-                        <div class="form-group">
-                            <label for="doctor_email">Doctor's Email:</label>
-                            <input type="email" name="doctor_email" class="form-control" required>
-                        </div>
-                        <button type="submit" name="share" class="btn btn-primary">Share Records</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
+           
     <?php include '../resources/includes/footer.php'; ?>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

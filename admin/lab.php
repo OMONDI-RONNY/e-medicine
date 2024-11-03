@@ -1,14 +1,14 @@
 <?php
 session_start();
-// Include the database connection
-include '../access/config.php'; // Adjust path if needed
+
+include '../access/config.php'; 
 if (!isset($_SESSION['username'])) {
-    // Admin is not logged in, redirect to login page
+   
     header("Location: login.php");
-    exit; // Ensure no further code is executed
+    exit;
 }
 
-// Delete a laboratory test result
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
     $id = $_POST['id'];
 
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit();
 }
 
-// Fetch all laboratory records with patient information
+
 $query = "
     SELECT laboratory.LabID, patients.firstname AS Patient, laboratory.TestName, laboratory.TestDate, laboratory.Result
     FROM laboratory
@@ -46,7 +46,7 @@ $records = mysqli_fetch_all($result, MYSQLI_ASSOC);
             color: #333;
         }
 
-        /* Navbar Styling */
+    
         .navbar {
             background-color: #007bff;
         }
@@ -56,18 +56,18 @@ $records = mysqli_fetch_all($result, MYSQLI_ASSOC);
             color: white !important;
         }
 
-        /* Page Layout */
+   
         .dashboard {
             display: flex;
         }
 
-       
         .container {
-    padding: 20px;
-    flex-grow: 1;
-    margin-left: -20px; /* Adjust this to move the container closer to the sidebar */
-}
-        /* Header */
+            padding: 20px;
+            margin: 0;
+            max-width: 100%;
+            flex-grow: 1;
+        }
+        
         .page-header h1 {
             font-size: 2rem;
             color: #007bff;
@@ -78,7 +78,7 @@ $records = mysqli_fetch_all($result, MYSQLI_ASSOC);
             color: #666;
         }
 
-        /* Laboratory Filters */
+       
         .laboratory-filters {
             display: flex;
             justify-content: space-between;
@@ -107,7 +107,7 @@ $records = mysqli_fetch_all($result, MYSQLI_ASSOC);
             background-color: #0056b3;
         }
 
-        /* Laboratory Table */
+       
         .laboratory-table table {
             width: 100%;
             border-collapse: collapse;
@@ -126,7 +126,7 @@ $records = mysqli_fetch_all($result, MYSQLI_ASSOC);
             color: white;
         }
 
-        /* Action Buttons */
+      
         .btn-edit,
         .btn-delete {
             padding: 6px 12px;
@@ -155,7 +155,6 @@ $records = mysqli_fetch_all($result, MYSQLI_ASSOC);
             background-color: #c82333;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .laboratory-filters {
                 flex-direction: column;
@@ -186,7 +185,7 @@ $records = mysqli_fetch_all($result, MYSQLI_ASSOC);
             <!-- Laboratory Search & Filters -->
             <div class="laboratory-filters">
                 <input type="text" class="search-bar" placeholder="Search tests...">
-                <button class="btn-primary" data-toggle="modal" data-target="#addTestResultModal">Add Test Result</button>
+                
             </div>
 
             <!-- Laboratory Table -->
@@ -261,7 +260,7 @@ $records = mysqli_fetch_all($result, MYSQLI_ASSOC);
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Add Result</button>
+                                <!--<button type="submit" class="btn btn-primary">Add Result</button>
                             </div>
                         </form>
                     </div>

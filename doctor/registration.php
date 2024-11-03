@@ -1,41 +1,80 @@
 
 <?php
 session_start(); 
-
-
 include '../access/config.php';
 
-
-
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-   
-    $username = $_POST['username'];
+    $firstname = $_POST['fname'];
+    $lastname = $_POST['lname'];
     $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $specialty = $_POST['specialty'];
     $password = $_POST['password'];
 
-   
-    $stmt = $conn->prepare("INSERT INTO doctors (DoctorID, Email, password) VALUES (?, ?, ?)");
-    $stmt->bind_param('iss', $username, $email, $password);
+    $stmt = $conn->prepare("INSERT INTO doctors (firstname, lastname, Specialty, Email, Phone, password) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param('ssssis', $firstname, $lastname, $specialty, $email, $phone, $password);
 
     if ($stmt->execute()) {
-        
-        header("Location: login.php");
+        // Get the last inserted doctor ID
+        $doctorId = $conn->insert_id;
+
+        // SMS notification setup
+        $endpoint = 'https://api.tiaraconnect.io/api/messaging/sendsms';
+        $apiKey = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIzNTEiLCJvaWQiOjM1MSwidWlkIjoiN2Y5ZGQ1ZmMtM2QwMi00ZGZiLTg1YjItY2FjMDBlYjU0NDhkIiwiYXBpZCI6MjQxLCJpYXQiOjE3MTExOTQyMTAsImV4cCI6MjA1MTE5NDIxMH0._BW3-yd5JJmAnRsL_trguFXmTLKFmz_a4EAJVmoIk7H66Lpccj3uKiwuTJjgYoxKLU6ZH0EhAC3pkDU2wQcPXQ';
+        $from = 'TIARACONECT';
+        $message = 'Welcome to E-Medicine, ' . $firstname . '! Your registration was successful. Your login ID is: ' . $doctorId . ' and your password is: ' . $password;
+
+        sendSMS($endpoint, $apiKey, $phone, $from, $message);
+
+        header("Location: registration.php?sms_sent=1");
         exit(); 
     } else {
-        $errorMsg = "Error submitting  details: " . $conn->error;
-        
+        $errorMsg = "Error submitting details: " . $conn->error;
     }
 
-    
     $stmt->close();
 }
-
-
 $conn->close();
-?><!DOCTYPE html>
-<html lang="en">
 
+function sendSMS($endpoint, $apiKey, $to, $from, $message) {
+    $request = [
+        'to' => $to,
+        'from' => $from,
+        'message' => $message
+    ];
+    $requestBody = json_encode($request);
+
+    error_log("Sending SMS to $to with message: $message");
+
+    $curl = curl_init();
+    curl_setopt_array($curl, [
+        CURLOPT_URL => $endpoint,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => $requestBody,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $apiKey
+        ],
+    ]);
+
+    $response_body = curl_exec($curl);
+    $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+    if ($response_body === false) {
+        error_log('cURL Error: ' . curl_error($curl));
+    } elseif ($http_status !== 200) {
+        error_log('HTTP Error ' . $http_status . ': ' . $response_body);
+    } else {
+        error_log("SMS sent successfully to $to: " . $response_body);
+    }
+
+    curl_close($curl);
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -175,7 +214,6 @@ $conn->close();
             transform: translateY(-2px); 
         }
 
-        
         @media (max-width: 768px) {
             .left {
                 padding: 20px;
@@ -199,7 +237,6 @@ $conn->close();
         }
     </style>
 </head>
-
 <body>
     <div class="left">
         <h1>Your Health, Our Priority</h1>
@@ -213,20 +250,31 @@ $conn->close();
     <div class="right">
         <div class="registration-card">
             <div class="icon">
-               
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#007bff"><path d="M12 12c2.7 0 5.2-.9 7.2-2.5-1.3-2.7-4.2-4.5-7.2-4.5S6.1 6.8 4.8 9.5C6.8 11.1 9.3 12 12 12zm0 2c-4 0-12 2-12 6v4h24v-4c0-4-8-6-12-6z"/></svg>
             </div>
             <h2>Register for E-Medicine</h2>
             <form action="registration.php" method="post">
-                <input type="number" name="username" placeholder="Doctor ID" required>
-                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="text" name="fname" placeholder="First Name" required>
+                <input type="text" name="lname" placeholder="Last Name" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="text" name="phone" placeholder="Phone Number" required>
+                <input type="text" name="specialty" placeholder="Specialty" required>
                 <input type="password" name="password" placeholder="Password" required>
-                <input type="hidden" name="confirm_password" placeholder="Confirm Password" required>
                 <button type="submit">Register</button>
             </form>
-            <a href="login.php">Already have an account? Login here</a>
+
+            <?php 
+                if (isset($_GET['sms_sent']) && $_GET['sms_sent'] == '1') {
+                    echo "<script>
+                        alert('Registration successful! An SMS has been sent to your phone with your login credentials.');
+                        window.location.href = 'login.php';
+                    </script>";
+                } elseif (isset($errorMsg)) {
+                    echo "<p style='color: red;'>$errorMsg</p>";
+                }
+            ?>
+            <a href="login.php">Already have an account? Log in</a>
         </div>
     </div>
 </body>
-
 </html>

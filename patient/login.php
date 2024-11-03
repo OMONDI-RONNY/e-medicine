@@ -1,62 +1,48 @@
+
 <?php
- session_start(); // Then start the session
-        
+session_start(); 
 
-// Include the database configuration
-include '../access/config.php'; // Make sure this path is correct for your setup
+include '../access/config.php';
 
-// Initialize an error message variable
 $error_message = "";
 
-// Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get the username and password from the form
-    $username = $_POST['username'];
+    
+    $username = $_POST['username'];  // This can be email or patient ID
     $password = $_POST['password'];
 
-    // Basic validation
     if (!empty($username) && !empty($password)) {
-        // Prepare the statement
-        $stmt = $conn->prepare("SELECT * FROM patients WHERE Email = ? AND Password = ?");
-        $stmt->bind_param("ss", $username, $password); // Bind parameters
+        
+        // Modify the query to check for email or patient ID
+        $stmt = $conn->prepare("SELECT * FROM patients WHERE (Email = ? OR PatientID = ?) AND Password = ?");
+        $stmt->bind_param("sss", $username, $username, $password); 
 
-        // Execute the statement
         $stmt->execute();
         $result = $stmt->get_result();
 
-        // Check if a user was found
         if ($result->num_rows > 0) {
-            // Fetch the user's details
             $patient = $result->fetch_assoc();
-
-            // Start session and store user information
             
-           
-            $_SESSION['user_id'] = $username; // Store patient ID in session
-           
+            // Store email in session regardless of login method
+            $_SESSION['user_id'] = $patient['Email']; 
             
-            // Redirect to the patient dashboard
             header("Location: index.php");
-            exit(); // Important to exit after header redirect
+            exit(); 
         } else {
-            // Invalid username or password - Set error message
             $error_message = "Invalid username or password.";
         }
 
-        // Close the statement
         $stmt->close();
     } else {
         $error_message = "Please fill in all fields.";
     }
 }
 
-// Close the database connection
 $conn->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,7 +53,7 @@ $conn->close();
             height: 100vh;
             margin: 0;
             font-family: 'Roboto', sans-serif;
-            background: linear-gradient(to right, #74ebd5, #acb6e5); /* Gradient background */
+            background: linear-gradient(to right, #74ebd5, #acb6e5); 
         }
 
         .left {
@@ -76,7 +62,7 @@ $conn->close();
             flex-direction: column;
             justify-content: center;
             padding: 40px;
-            background-image: url('../resources/images/doc.png'); /* Medical-themed background image */
+            background-image: url('../resources/images/doc.png');
             background-size: cover;
             background-position: center;
             color: white;
@@ -118,7 +104,7 @@ $conn->close();
             max-width: 400px;
             width: 100%;
             position: relative;
-            overflow: hidden; /* To contain the pseudo-elements */
+            overflow: hidden; 
         }
 
         .login-card::before {
@@ -128,25 +114,25 @@ $conn->close();
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 123, 255, 0.1); /* Light blue overlay */
+            background: rgba(0, 123, 255, 0.1); 
             border-radius: 12px;
-            z-index: -1; /* Set behind other content */
+            z-index: -1;
         }
 
         .login-card h2 {
             margin-bottom: 20px;
             font-size: 1.8rem;
-            color: #007bff; /* Primary theme color */
-            position: relative; /* To overlap with pseudo-element */
-            z-index: 1; /* Above the overlay */
+            color: #007bff;
+            position: relative;
+            z-index: 1;
         }
 
         .login-card .icon {
             width: 70px;
             height: 70px;
-            margin: 20px auto; /* Center icon */
-            position: relative; /* To overlap with pseudo-element */
-            z-index: 1; /* Above the overlay */
+            margin: 20px auto;
+            position: relative; 
+            z-index: 1; 
         }
 
         .login-card input {
@@ -157,46 +143,46 @@ $conn->close();
             border-radius: 6px;
             font-size: 1rem;
             transition: border-color 0.3s ease;
-            position: relative; /* Ensure inputs are above the overlay */
-            z-index: 1; /* Above the overlay */
+            position: relative;
+            z-index: 1; 
         }
 
         .login-card input:focus {
-            border-color: #007bff; /* Primary theme color on focus */
-            outline: none; /* Remove outline */
+            border-color: #007bff; 
+            outline: none;
         }
 
         .login-card a {
             display: block;
             margin: 15px 0;
-            color: #007bff; /* Primary theme color for links */
+            color: #007bff;
             text-decoration: none;
             transition: color 0.3s ease;
         }
 
         .login-card a:hover {
-            color: #0056b3; /* Darker shade for hover */
+            color: #0056b3;
         }
 
         .login-card button {
-            background-color: #007bff; /* Primary theme color */
+            background-color: #007bff; 
             color: white;
             padding: 12px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-size: 1rem;
-            transition: background-color 0.3s ease, transform 0.3s ease; /* Added transform transition */
+            transition: background-color 0.3s ease, transform 0.3s ease; 
             position: relative;
-            z-index: 1; /* Above the overlay */
+            z-index: 1; 
         }
 
         .login-card button:hover {
-            background-color: #0056b3; /* Darker shade for hover */
-            transform: translateY(-2px); /* Button lift effect */
+            background-color: #0056b3;
+            transform: translateY(-2px);
         }
 
-        /* Media Queries for Responsiveness */
+        
         @media (max-width: 768px) {
             .left {
                 padding: 20px;
@@ -219,13 +205,11 @@ $conn->close();
             }
         }
         .error {
-            color: red; /* Red color for error message */
-            margin-bottom: 20px; /* Spacing below the error message */
+            color: red; 
+            margin-bottom: 20px; 
         }
     </style>
 </head>
-
-
 <body>
     <div class="left">
         <h1>Your Health, Our Priority</h1>
@@ -239,7 +223,6 @@ $conn->close();
     <div class="right">
         <div class="login-card">
             <div class="icon">
-                <!-- Custom SVG Account Icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#007bff"><path d="M12 12c2.7 0 5.2-.9 7.2-2.5-1.3-2.7-4.2-4.5-7.2-4.5S6.1 6.8 4.8 9.5C6.8 11.1 9.3 12 12 12zm0 2c-4 0-12 2-12 6v4h24v-4c0-4-8-6-12-6z"/></svg>
             </div>
             <h2>Login to E-Medicine</h2>
@@ -247,14 +230,13 @@ $conn->close();
                 <div class="error"><?php echo $error_message; ?></div>
             <?php endif; ?>
             <form action="login.php" method="post">
-                <input type="text" name="username" placeholder="Email" required>
+                <input type="text" name="username" placeholder="Email or Patient ID" required>
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit">Login</button>
             </form>
-            <a href="#">Forgot Password?</a>
+            <a href="../resources/includes/forgot.php">Forgot Password?</a>
             <a href="registation.php">New to E-Medicine? Sign Up</a>
         </div>
     </div>
 </body>
-
 </html>

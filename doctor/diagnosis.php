@@ -7,16 +7,16 @@ if (!isset($_SESSION['doctor_id'])) {
     exit;
 }
 
-// Check if form is submitted
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Collect form data
+  
     $appointment_id = $_POST['appointment_id'];
     $symptoms = $_POST['symptoms'];
     $medical_history = $_POST['medical_history'];
     $clinical_evaluation = $_POST['clinical_evaluation'];
     $diagnosis = $_POST['diagnosis'];
 
-    // Insert the diagnosis into the database
+   
     $stmt = $conn->prepare("INSERT INTO diagnoses (appointment_id, symptoms, medical_history, clinical_evaluation, diagnosis) VALUES (?, ?, ?, ?, ?)");
     $stmt->bind_param("issss", $appointment_id, $symptoms, $medical_history, $clinical_evaluation, $diagnosis);
 
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Fetch appointments for the logged-in doctor
+
 $doctor_id = $_SESSION['doctor_id'];
 $result = $conn->prepare("SELECT appointmentID FROM appointments WHERE doctorID = ? AND status = 'Completed'");
 $result->bind_param("i", $doctor_id);

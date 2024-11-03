@@ -1,42 +1,41 @@
 <?php
-// Start the session
+
 session_start();
 
-// Include the database configuration
-include '../access/config.php'; // Your database connection settings
 
-// Check if the user is logged in
+include '../access/config.php'; 
+
 if (!isset($_SESSION['doctor_id'])) {
     echo "Doctor ID not set. Redirecting...";
     header("Location: login.php");
     exit();
 }
 
-// Initialize variables
+
 $doctorId = $_SESSION['doctor_id'];
 $message = '';
 
-// Handle profile update
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Collect form data
+    
     $email = $_POST['email'];
     $phone = $_POST['phone'];
     $specialty = $_POST['specialty'];
     $firstname = $_POST['firstname'];
-    $lastname = $_POST['lastname']; // New field for last name
+    $lastname = $_POST['lastname']; 
 
-    // Handle image upload
+  
     if (isset($_FILES['profileImage']) && $_FILES['profileImage']['error'] === UPLOAD_ERR_OK) {
         $targetDirectory = "../resources/images/";
         $targetFile = $targetDirectory . basename($_FILES["profileImage"]["name"]);
         $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
-        // Check if image file is a actual image or fake image
+        
         $check = getimagesize($_FILES["profileImage"]["tmp_name"]);
         if ($check !== false) {
-            // Move the uploaded file
+           
             if (move_uploaded_file($_FILES["profileImage"]["tmp_name"], $targetFile)) {
-                // Update profile with new image path
+               
                 $imagePath = basename($_FILES["profileImage"]["name"]);
                 $updateQuery = $conn->prepare("UPDATE doctors SET Email = ?, firstname = ?, lastname = ?, Phone = ?, Specialty = ?, ProfileImage = ? WHERE DoctorID = ?");
                 $updateQuery->bind_param("ssssssi", $email, $firstname, $lastname, $phone, $specialty, $imagePath, $doctorId);
@@ -47,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "File is not an image.";
         }
     } else {
-        // Update profile without changing the image
+        
         $updateQuery = $conn->prepare("UPDATE doctors SET Email = ?, firstname = ?, lastname = ?, Phone = ?, Specialty = ? WHERE DoctorID = ?");
         $updateQuery->bind_param("sssssi", $email, $firstname, $lastname, $phone, $specialty, $doctorId);
     }
@@ -59,13 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch doctor's profile information
+
 $profileQuery = $conn->prepare("SELECT * FROM doctors WHERE DoctorID = ?");
 $profileQuery->bind_param("i", $doctorId);
 $profileQuery->execute();
 $doctor = $profileQuery->get_result()->fetch_assoc();
 
-// Close the database connection
+
 $conn->close();
 ?>
 <!DOCTYPE html>

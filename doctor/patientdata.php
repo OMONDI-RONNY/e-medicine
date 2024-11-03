@@ -1,16 +1,16 @@
 <?php
-session_start(); // Start the session
+session_start(); 
 
-// Include the database configuration
+
 include '../access/config.php';
 
-// Check if the user is logged in
+
 if (!isset($_SESSION['doctor_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// Prepare the SQL statement for retrieving patients associated with the logged-in doctor
+
 $stmt = $conn->prepare("
     SELECT p.PatientID, p.firstname, p.Age, p.Gender, p.CreatedAt, p.Status
     FROM patients p
@@ -18,28 +18,28 @@ $stmt = $conn->prepare("
     WHERE a.DoctorID = ?
 ");
 
-// Check if prepare was successful
+
 if ($stmt === false) {
     die('Prepare failed: ' . htmlspecialchars($conn->error));
 }
 
-// Bind parameters and execute
+
 $stmt->bind_param("s", $_SESSION['doctor_id']);
 $stmt->execute();
 $result = $stmt->get_result();
 $patients = $result->fetch_all(MYSQLI_ASSOC);
 
-// Close the statement
+
 $stmt->close();
 
-// Handle adding a new patient
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addPatient'])) {
     $patientName = $_POST['patientName'];
     $patientAge = $_POST['patientAge'];
     $patientGender = $_POST['patientGender'];
     $patientStatus = $_POST['patientStatus'];
 
-    // Prepare the SQL statement for inserting a new patient
+   
     $insertStmt = $conn->prepare("
         INSERT INTO patients (firstname, Age, Gender, Status) VALUES (?, ?, ?, ?)
     ");
@@ -48,22 +48,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addPatient'])) {
         die('Prepare failed: ' . htmlspecialchars($conn->error));
     }
 
-    // Bind parameters and execute
+   
     $insertStmt->bind_param("siss", $patientName, $patientAge, $patientGender, $patientStatus);
     
     if ($insertStmt->execute()) {
-        // Redirect to the same page to refresh the list after adding
+       
         header("Location: ".$_SERVER['PHP_SELF']);
         exit();
     } else {
         echo "Error: " . htmlspecialchars($insertStmt->error);
     }
 
-    // Close the insert statement
+ 
     $insertStmt->close();
 }
 
-// Handle updating an existing patient
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updatePatient'])) {
     $patientID = $_POST['patientID'];
     $patientName = $_POST['patientName'];
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updatePatient'])) {
     $patientGender = $_POST['patientGender'];
     $patientStatus = $_POST['patientStatus'];
 
-    // Prepare the SQL statement for updating a patient
+  
     $updateStmt = $conn->prepare("
         UPDATE patients 
         SET firstname = ?, Age = ?, Gender = ?, Status = ?
@@ -82,22 +82,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updatePatient'])) {
         die('Prepare failed: ' . htmlspecialchars($conn->error));
     }
 
-    // Bind parameters and execute
+    
     $updateStmt->bind_param("sisss", $patientName, $patientAge, $patientGender, $patientStatus, $patientID);
     
     if ($updateStmt->execute()) {
-        // Redirect to the same page to refresh the list after updating
+        
         header("Location: ".$_SERVER['PHP_SELF']);
         exit();
     } else {
         echo "Error: " . htmlspecialchars($updateStmt->error);
     }
 
-    // Close the update statement
+    
     $updateStmt->close();
 }
 
-// Close the database connection
+
 $conn->close();
 ?>
 
@@ -143,16 +143,16 @@ $conn->close();
 </head>
 <body>
 
-<?php include '../resources/includes/d_header.php'; ?> <!-- Include the header file -->
+<?php include '../resources/includes/d_header.php'; ?> 
     
-<div class="dashboard"> <!-- Flex container for sidebar and content -->
-    <?php include '../resources/includes/d_sidebar.php'; ?> <!-- Include the sidebar file -->
+<div class="dashboard"> 
+    <?php include '../resources/includes/d_sidebar.php'; ?> 
 
-    <!-- Page Content -->
+    
     <div class="content">
         <h1>Patient Management</h1>
 
-        <!-- Patient Table -->
+        
         <div class="patient-table">
             <table class="table table-bordered">
                 <thead>
@@ -177,7 +177,7 @@ $conn->close();
                             </td>
                         </tr>
 
-                        <!-- Edit Patient Modal -->
+                        
                         <div class="modal fade" id="editPatientModal<?php echo $patient['PatientID']; ?>" tabindex="-1" aria-labelledby="editPatientModalLabel<?php echo $patient['PatientID']; ?>" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
@@ -226,12 +226,12 @@ $conn->close();
             </table>
         </div>
 
-        <!-- Button to trigger modal for adding new patient -->
+        
         <button type="button" class="btn btn-success mt-3" data-toggle="modal" data-target="#addPatientModal">
             Add New Patient
         </button>
 
-        <!-- Modal for Adding New Patient -->
+        
         <div class="modal fade" id="addPatientModal" tabindex="-1" aria-labelledby="addPatientModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -277,10 +277,10 @@ $conn->close();
 
     </div>
 
-    <?php include '../resources/includes/d_notification.php'; ?> <!-- Include the notifications file -->
+    <?php include '../resources/includes/d_notification.php'; ?> 
 </div>
     
-<?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
+<?php include '../resources/includes/footer.php'; ?> 
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>

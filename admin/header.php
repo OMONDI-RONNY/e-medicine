@@ -1,9 +1,9 @@
 <head>
-    <!-- Other head elements -->
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
-<!-- Navbar -->
+
 <nav class="navbar navbar-expand-lg">
     <a class="navbar-brand" href="#">E-Medicine Admin</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,7 +20,7 @@
             <li class="nav-item hidden-max"><a class="nav-link" href="finance.php">Finance</a></li>
             <li class="nav-item hidden-max"><a class="nav-link" href="reports.php">Reports</a></li>
 
-            <!-- These two remain visible on a maximized screen -->
+           
             <li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
             <li class="nav-item"><a class="nav-link" href="logout.php">Logout</a></li>
         </ul>
@@ -68,14 +68,14 @@
         padding-top: 20px;
     }
 
-    /* Hide all links with 'hidden-max' class when the screen is large */
+ 
     @media (min-width: 992px) {
         .hidden-max {
             display: none !important;
         }
     }
 
-    /* Show all links normally on smaller screens */
+    
     @media (max-width: 991.98px) {
         .navbar-nav .nav-item {
             display: block;

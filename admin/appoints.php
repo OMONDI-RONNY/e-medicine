@@ -2,9 +2,9 @@
 session_start();
 include '../access/config.php'; 
 if (!isset($_SESSION['username'])) {
-    // Admin is not logged in, redirect to login page
+
     header("Location: login.php");
-    exit; // Ensure no further code is executed
+    exit;
 }
 
 
@@ -88,10 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .container {
-    padding: 20px;
-    flex-grow: 1;
-    margin-left: -20px; /* Adjust this negative margin to bring it closer to the sidebar */
-}
+            padding: 20px;
+            margin: 0;
+            max-width: 100%;
+            flex-grow: 1;
+        }
 
         
         .appointments-table table {
@@ -213,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </nav>
         </div>
     </div>
-    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
+    <?php include '../resources/includes/footer.php'; ?> 
 
     
     <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">

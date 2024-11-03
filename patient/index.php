@@ -1,28 +1,28 @@
 <?php
-// patient_dashboard.php
 
-// Include database configuration
-include '../access/config.php'; // Assuming this file contains your mysqli connection code
 
-// Start session
+
+include '../access/config.php';
+
+
 session_start();
 
-// Check if the user is logged in
+
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php"); // Redirect to login page if not logged in
+    header("Location: login.php");
     exit();
 }
 
-// Get the patient's email from the session
-$patientEmail = $_SESSION['user_id']; // Assuming 'user_id' is the patient's email stored in the session
 
-// Helper function to fetch patient details
+$patientEmail = $_SESSION['user_id']; 
+
+
 function fetchPatientDetails($conn, $patientEmail) {
     $query = "SELECT * FROM patients WHERE Email = ?";
     $stmt = $conn->prepare($query);
     
     if ($stmt === false) {
-        die("Prepare failed: " . $conn->error); // Output error message
+        die("Prepare failed: " . $conn->error); 
     }
     
     $stmt->bind_param("s", $patientEmail);
@@ -31,9 +31,9 @@ function fetchPatientDetails($conn, $patientEmail) {
     return $result->fetch_assoc();
 }
 
-// Helper function to fetch upcoming appointments
+
 function fetchUpcomingAppointments($conn, $patientEmail) {
-    $currentDate = date('Y-m-d H:i:s'); // Current date and time
+    $currentDate = date('Y-m-d H:i:s'); 
     $query = "SELECT d.firstname AS doctor_name, a.AppointmentDate, a.Status, a.CreatedAt 
               FROM appointments a 
               JOIN doctors d ON a.DoctorID = d.DoctorID 
@@ -43,7 +43,7 @@ function fetchUpcomingAppointments($conn, $patientEmail) {
     $stmt = $conn->prepare($query);
     
     if ($stmt === false) {
-        die("Prepare failed: " . $conn->error); // Output error message
+        die("Prepare failed: " . $conn->error); 
     }
     
     $stmt->bind_param("ss", $patientEmail, $currentDate);
@@ -52,7 +52,7 @@ function fetchUpcomingAppointments($conn, $patientEmail) {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-// Helper function to fetch active prescriptions
+
 function fetchActivePrescriptions($conn, $patientEmail) {
     $query = "SELECT p.Medication, p.Dosage 
               FROM prescriptions p 
@@ -62,7 +62,7 @@ function fetchActivePrescriptions($conn, $patientEmail) {
     $stmt = $conn->prepare($query);
     
     if ($stmt === false) {
-        die("Prepare failed: " . $conn->error); // Output error message
+        die("Prepare failed: " . $conn->error);
     }
     
     $stmt->bind_param("s", $patientEmail);
@@ -71,7 +71,7 @@ function fetchActivePrescriptions($conn, $patientEmail) {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-// Fetch patient details, upcoming appointments, and active prescriptions
+
 $patientDetails = fetchPatientDetails($conn, $patientEmail);
 $upcomingAppointments = fetchUpcomingAppointments($conn, $patientEmail);
 $activePrescriptions = fetchActivePrescriptions($conn, $patientEmail);
@@ -94,92 +94,92 @@ $activePrescriptions = fetchActivePrescriptions($conn, $patientEmail);
             color: #333;
         }
 
-        /* Dashboard Styling */
+       
         .dashboard {
-            display: flex; /* Use flexbox for layout */
+            display: flex; 
             padding: 20px;
         }
 
         .dashboard-content {
-            flex: 1; /* Take the remaining space */
+            flex: 1; 
         }
 
-        /* Overview Section */
+       
         .overview-row {
-            display: flex; /* Use flexbox for the overview cards */
-            flex-wrap: wrap; /* Allow cards to wrap */
-            gap: 20px; /* Space between cards */
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 20px; 
         }
-/* Increase space between the cards */
+
 .overview-row {
-    display: flex; /* Use flexbox for the overview cards */
-    flex-wrap: wrap; /* Allow cards to wrap */
-    gap: 30px; /* Increase the space between cards */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px; 
 }
 
-/* Reduce card size further */
+
 .overview-card {
-    background-color: #28a745; /* Change the color */
+    background-color: #28a745; 
     color: white;
     text-align: center;
-    padding: 8px; /* Reduce padding further */
+    padding: 8px; 
     border-radius: 10px;
-    flex: 1 1 180px; /* Further reduce basis to 180px */
-    min-height: 120px; /* Reduce the height further */
+    flex: 1 1 180px; 
+    min-height: 120px; 
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
-/* Reduce the icon size */
+
 .icon {
-    font-size: 35px; /* Even smaller icon */
-    margin-bottom: 8px; /* Less space between icon and text */
+    font-size: 35px;
+    margin-bottom: 8px; 
 }
 
-/* Reduce the font sizes */
+
 .overview-card h2 {
-    font-size: 20px; /* Smaller heading */
+    font-size: 20px;
     margin: 5px 0;
 }
 
 .overview-card p {
-    font-size: 12px; /* Smaller paragraph */
+    font-size: 12px; 
 }
 
-/* Modify the colors of the specific cards */
+
 .overview-card:first-child {
-    background-color: #17a2b8; /* For the first card (patient details) */
+    background-color: #17a2b8;
 }
 
 .overview-card:nth-child(2) {
-    background-color: #ffc107; /* For the second card (appointments) */
+    background-color: #ffc107; 
 }
 
 .overview-card:nth-child(3) {
-    background-color: #dc3545; /* For the third card (prescriptions) */
+    background-color: #dc3545; 
 }
 
-/* Adjust table to match card size */
+
 .table {
-    font-size: 14px; /* Make table text smaller */
+    font-size: 14px; 
 }
 
 
 
 
-        /* Icons */
+    
         .icon {
-            font-size: 50px; /* Icon size */
-            margin-bottom: 15px; /* Space between icon and text */
+            font-size: 50px;
+            margin-bottom: 15px;
         }
 
-        /* Appointment Management Section */
+       
         .card {
             margin-bottom: 20px;
         }
 
-        /* Notifications */
+     
         .notification {
             padding: 10px;
             border: 1px solid #007bff;
@@ -198,12 +198,12 @@ $activePrescriptions = fetchActivePrescriptions($conn, $patientEmail);
     <?php include '../resources/includes/p_header.php'; ?>
 
     <div class="dashboard">
-        <?php include 'sidebar.php'; ?> <!-- Include the sidebar here -->
+        <?php include 'sidebar.php'; ?> 
 
         <div class="dashboard-content">
             <h1>Patient Dashboard</h1>
 
-            <!-- Overview Section -->
+           
             <div class="overview-row">
                 <div class="overview-card">
                     <i class="fas fa-user icon"></i>
@@ -222,7 +222,7 @@ $activePrescriptions = fetchActivePrescriptions($conn, $patientEmail);
                 </div>
             </div>
 
-            <!-- Appointment Management Section -->
+           
             <div class="card">
                 <div class="card-header">
                     <h5>My Appointments</h5>
@@ -259,11 +259,11 @@ $activePrescriptions = fetchActivePrescriptions($conn, $patientEmail);
                 </div>
             </div>
 
-            <!-- Additional sections can be added here... -->
+            
         </div>
     </div>
 
-    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
+    <?php include '../resources/includes/footer.php'; ?>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -276,28 +276,28 @@ $activePrescriptions = fetchActivePrescriptions($conn, $patientEmail);
             const table = document.getElementById('appointmentsTable');
             const tr = table.getElementsByTagName('tr');
 
-            for (let i = 1; i < tr.length; i++) { // Start from 1 to skip the header row
-                const tdDoctor = tr[i].getElementsByTagName('td')[0]; // Doctor's name column
-                const tdDate = tr[i].getElementsByTagName('td')[1]; // Appointment date column
+            for (let i = 1; i < tr.length; i++) { 
+                const tdDoctor = tr[i].getElementsByTagName('td')[0]; 
+                const tdDate = tr[i].getElementsByTagName('td')[1]; 
                 let found = true;
 
                 if (tdDoctor) {
                     const doctorText = tdDoctor.textContent || tdDoctor.innerText;
                     if (doctorText.toLowerCase().indexOf(filter) === -1) {
-                        found = false; // Doctor's name doesn't match search
+                        found = false; 
                     }
                 }
 
                 if (tdDate) {
                     const appointmentDate = tdDate.textContent || tdDate.innerText;
-                    // Extract only the date part (YYYY-MM-DD)
-                    const dateOnly = appointmentDate.split(' ')[0]; // Ignore time
+                    
+                    const dateOnly = appointmentDate.split(' ')[0]; 
                     if (dateFilter && dateOnly !== dateFilter) {
-                        found = false; // Date doesn't match filter
+                        found = false; 
                     }
                 }
 
-                tr[i].style.display = found ? "" : "none"; // Show or hide the row
+                tr[i].style.display = found ? "" : "none"; 
             }
         }
     </script>

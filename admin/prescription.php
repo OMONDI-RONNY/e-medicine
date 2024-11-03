@@ -1,14 +1,14 @@
 <?php
 session_start();
-include '../access/config.php'; // Database configuration
+include '../access/config.php'; 
 if (!isset($_SESSION['username'])) {
-    // Admin is not logged in, redirect to login page
+    
     header("Location: login.php");
-    exit; // Ensure no further code is executed
+    exit; 
 }
 
-// Fetch prescriptions from the database with pagination
-$limit = 5; // Maximum number of records per page
+
+$limit = 5; 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
@@ -29,39 +29,38 @@ while ($row = $result->fetch_assoc()) {
     $prescriptions[] = $row;
 }
 
-// Count total prescriptions for pagination
+
 $totalQuery = "SELECT COUNT(*) AS total FROM prescriptions";
 $totalResult = $conn->query($totalQuery);
 $totalRow = $totalResult->fetch_assoc();
 $totalPrescriptions = $totalRow['total'];
 $totalPages = ceil($totalPrescriptions / $limit);
 
-// Process prescription actions (Edit/Delete)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['edit'])) {
-        // Edit prescription logic
+        
         $prescriptionID = $_POST['prescription_id'];
-        $status = $_POST['status']; // Update other fields as needed
+        $status = $_POST['status']; 
         $updateQuery = "UPDATE prescriptions SET Status = '$status' WHERE PrescriptionID = $prescriptionID";
         if ($conn->query($updateQuery) === TRUE) {
-            // Optionally, handle success message here
+            
         } else {
             die("Update failed: " . $conn->error);
         }
     }
 
     if (isset($_POST['delete'])) {
-        // Delete prescription logic
+        
         $prescriptionID = $_POST['prescription_id'];
         $deleteQuery = "DELETE FROM prescriptions WHERE PrescriptionID = $prescriptionID";
         if ($conn->query($deleteQuery) === TRUE) {
-            // Optionally, handle success message here
+            
         } else {
             die("Delete failed: " . $conn->error);
         }
     }
 
-    // Redirect to avoid form resubmission
+    
     header("Location: prescription.php?page=$page");
     exit();
 }
@@ -77,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body {
+          body {
             font-family: 'Roboto', sans-serif;
             background-color: #f5f7fa;
             color: #333;
@@ -96,11 +95,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
         }
 
+      
         .container {
-    padding: 20px;
-    flex-grow: 1;
-    margin-left: -20px; /* Adjust this to move the container closer to the sidebar */
-}
+            padding: 20px;
+            margin: 0;
+            max-width: 100%;
+            flex-grow: 1;
+        }
 
         .page-header h1 {
             font-size: 2rem;
@@ -140,6 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #0056b3;
         }
 
+        
         .prescriptions-table table {
             width: 100%;
             border-collapse: collapse;
@@ -202,9 +204,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
 
-    <?php include 'header.php'; ?> <!-- Include the header file -->
+    <?php include 'header.php'; ?> 
     <div class="dashboard">
-        <?php include 'sidebar.php'; ?> <!-- Include the sidebar file -->
+        <?php include 'sidebar.php'; ?>
 
         <div class="container">
             <div class="page-header">
@@ -214,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="prescription-filters">
                 <input type="text" class="search-bar" placeholder="Search prescriptions..." id="searchInput">
-                <button class="btn-primary" data-toggle="modal" data-target="#addPrescriptionModal">Add New Prescription</button>
+                
             </div>
 
             <div class="prescriptions-table">
@@ -251,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
             </div>
 
-            <!-- Pagination -->
+          
             <?php if ($totalPages > 1): ?>
             <nav aria-label="Page navigation">
                 <ul class="pagination">
@@ -266,9 +268,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
+    <?php include '../resources/includes/footer.php'; ?> 
 
-    <!-- Edit Prescription Modal -->
+    
     <div class="modal fade" id="editPrescriptionModal" tabindex="-1" role="dialog" aria-labelledby="editPrescriptionModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -296,7 +298,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- Delete Prescription Modal -->
+  
     <div class="modal fade" id="deletePrescriptionModal" tabindex="-1" role="dialog" aria-labelledby="deletePrescriptionModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -320,7 +322,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Search functionality
+       
         document.getElementById('searchInput').addEventListener('keyup', function() {
             var filter = this.value.toLowerCase();
             var rows = document.querySelectorAll('#prescriptionTableBody tr');
@@ -334,11 +336,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         break;
                     }
                 }
-                row.style.display = found ? '' : 'none'; // Show or hide row based on search
-            });
+                row.style.display = found ? '' : 'none'; 
         });
 
-        // Populate the edit modal with prescription data
+        
         $('#editPrescriptionModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
             var prescriptionID = button.data('id');
@@ -348,7 +349,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             modal.find('#editStatus').val(status);
         });
 
-        // Populate the delete modal with prescription data
+        
         $('#deletePrescriptionModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
             var prescriptionID = button.data('id');

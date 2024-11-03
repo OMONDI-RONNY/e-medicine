@@ -1,7 +1,7 @@
 <?php
-// header.php
+
 ?>
-<nav class="navbar navbar-expand-lg" style="background-color: #007bff;"> <!-- Keep the background color -->
+<nav class="navbar navbar-expand-lg" style="background-color: #007bff;"> 
     <a class="navbar-brand" href="#" style="color: white;">E-Medicine</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -28,7 +28,6 @@
 </nav>
 
 <style>
-    /* Custom Hamburger Icon Styling */
     .navbar-toggler {
         border: none;
         outline: none;
@@ -38,14 +37,14 @@
         background-image: url('data:image/svg+xml;charset=utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"%3E%3Cpath stroke="rgba%28255, 255, 255, 0.5%29" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" d="M4 7h22M4 15h22M4 23h22"/%3E%3C/svg%3E');
     }
 
-    /* Ensure the navbar is responsive */
+    
     @media (max-width: 767.98px) {
         .navbar-collapse {
-            background-color: #007bff; /* Keep the collapse background blue */
+            background-color: #007bff; 
         }
     }
 
-    /* Hide all links with 'hidden-max' class when the screen is large */
+   
     @media (min-width: 992px) {
         .hidden-max {
             display: none !important;

@@ -1,22 +1,22 @@
 <?php
 
-// Include the database configuration
-include '../access/config.php'; // Your database connection settings
+
+include '../access/config.php'; 
 
 session_start();
 if (!isset($_SESSION['doctor_id'])) {
-    // Redirect to login page if not logged in
+    
     header("Location: login.php");
     exit();
 }
 
-// Initialize metrics
+
 $totalPatients = 0;
 $upcomingAppointments = 0;
 $newPrescriptions = 0;
 $id = $_SESSION['doctor_id'];
 
-// Fetch total patients count
+
 $patientResult = $conn->query("SELECT COUNT(*) as total FROM patients");
 if ($patientResult && $patientResult->num_rows > 0) {
     $totalPatients = $patientResult->fetch_assoc()['total'];
@@ -24,51 +24,51 @@ if ($patientResult && $patientResult->num_rows > 0) {
     die("Database query failed: " . $conn->error);
 }
 
-// Fetch upcoming appointments count based on doctorID
+
 $appointmentResult = $conn->prepare("SELECT COUNT(*) as total FROM appointments WHERE AppointmentDate >= CURDATE() AND DoctorID = ?");
-$appointmentResult->bind_param("i", $id); // Bind the session doctorID
+$appointmentResult->bind_param("i", $id); 
 $appointmentResult->execute();
 $upcomingAppointments = $appointmentResult->get_result()->fetch_assoc()['total'];
 
-// Fetch new prescriptions count based on today's date and doctor's appointments
+
 $prescriptionQuery = $conn->prepare("
     SELECT COUNT(*) as total 
     FROM prescriptions p
     JOIN appointments a ON p.AppointmentID = a.AppointmentID
     WHERE DATE(p.CreatedAt) = CURDATE() AND a.DoctorID = ?
 ");
-$prescriptionQuery->bind_param("i", $id); // Bind the session doctorID
+$prescriptionQuery->bind_param("i", $id); 
 $prescriptionQuery->execute();
 $newPrescriptions = $prescriptionQuery->get_result()->fetch_assoc()['total'];
 
-// Pagination Logic
-$recordsPerPage = 5; // Define how many records per page
+
+$recordsPerPage = 5; 
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $offset = ($page - 1) * $recordsPerPage;
 
-// Fetch limited patient data for management section
+
 $patientsQuery = $conn->prepare("SELECT * FROM patients LIMIT ?, ?");
 $patientsQuery->bind_param("ii", $offset, $recordsPerPage);
 $patientsQuery->execute();
 $patientsResult = $patientsQuery->get_result();
 
-// Fetch total patients for pagination calculation
+
 $totalPatientsQuery = $conn->query("SELECT COUNT(*) as total FROM patients");
 $totalPatients = $totalPatientsQuery->fetch_assoc()['total'];
-$totalPages = ceil($totalPatients / $recordsPerPage); // Calculate total number of pages
+$totalPages = ceil($totalPatients / $recordsPerPage); 
 
-// Fetch appointment data for management section with patient names
+
 $appointmentsQuery = $conn->prepare("
     SELECT a.*, p.firstname 
     FROM appointments a
     JOIN patients p ON a.PatientID = p.PatientID
     WHERE a.AppointmentDate >= CURDATE() AND a.DoctorID = ?
 ");
-$appointmentsQuery->bind_param("i", $id); // Bind the session doctorID
+$appointmentsQuery->bind_param("i", $id);
 $appointmentsQuery->execute();
 $appointmentsResult = $appointmentsQuery->get_result();
 
-// Close the database connection
+
 $conn->close();
 ?>
 <!DOCTYPE html>
@@ -79,7 +79,7 @@ $conn->close();
     <title>Doctor's Dashboard - E-Medicine System</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -153,15 +153,15 @@ $conn->close();
 </head>
 <body>
 
-<?php include '../resources/includes/d_header.php'; ?> <!-- Include the header file -->
-<div class="dashboard"> <!-- Flex container for sidebar and content -->
-    <?php include '../resources/includes/d_sidebar.php'; ?> <!-- Include the sidebar file -->
+<?php include '../resources/includes/d_header.php'; ?> 
+<div class="dashboard"> 
+    <?php include '../resources/includes/d_sidebar.php'; ?> 
 
-    <!-- Dashboard Content -->
+    
     <div class="dashboard-content">
         <h1>Doctor's Dashboard</h1>
 
-        <!-- Metrics Section -->
+        
         <div class="row">
             <div class="col-md-4 col-sm-12">
                 <div class="metric-card">
@@ -186,7 +186,7 @@ $conn->close();
             </div>
         </div>
 
-        <!-- Patient Management Section -->
+        
         <div class="card">
             <div class="card-header">
                 <h5>Patient Management</h5>
@@ -213,7 +213,7 @@ $conn->close();
                     </tbody>
                 </table>
 
-                <!-- Pagination Links -->
+                
                 <nav>
                     <ul class="pagination">
                         <?php if($page > 1): ?>
@@ -234,7 +234,7 @@ $conn->close();
             </div>
         </div>
 
-        <!-- Appointment Management Section -->
+        
         <div class="card">
             <div class="card-header">
                 <h5>Appointment Management</h5>

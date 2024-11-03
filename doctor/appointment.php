@@ -1,36 +1,98 @@
 <?php
-session_start(); // Start the session
+session_start(); 
 
-// Include the database configuration
 include '../access/config.php';
 
-// Check if the user is logged in
 if (!isset($_SESSION['doctor_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// Check if the form is submitted via POST for updating the appointment
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['updateAppointment'])) {
-    // Get the form data
+   
     $appointmentID = $_POST['appointmentID'];
     $appointmentDate = $_POST['appointmentDate'];
     $appointmentStatus = $_POST['appointmentStatus'];
 
-    // Prepare and execute the update query
+   
     $stmt = $conn->prepare("UPDATE appointments SET AppointmentDate = ?, Status = ? WHERE AppointmentID = ?");
     $stmt->bind_param('ssi', $appointmentDate, $appointmentStatus, $appointmentID);
 
     if ($stmt->execute()) {
         $successMsg = "Appointment updated successfully!";
+        
+        
+        $patientStmt = $conn->prepare("SELECT p.phone FROM appointments a JOIN patients p ON a.patientID = p.PatientID WHERE a.AppointmentID = ?");
+        $patientStmt->bind_param('i', $appointmentID);
+        $patientStmt->execute();
+        $result = $patientStmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $patient = $result->fetch_assoc();
+            $phone = $patient['phone'];
+
+            
+            $endpoint = 'https://api.tiaraconnect.io/api/messaging/sendsms';
+            $apiKey = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIzNTEiLCJvaWQiOjM1MSwidWlkIjoiN2Y5ZGQ1ZmMtM2QwMi00ZGZiLTg1YjItY2FjMDBlYjU0NDhkIiwiYXBpZCI6MjQxLCJpYXQiOjE3MTExOTQyMTAsImV4cCI6MjA1MTE5NDIxMH0._BW3-yd5JJmAnRsL_trguFXmTLKFmz_a4EAJVmoIk7H66Lpccj3uKiwuTJjgYoxKLU6ZH0EhAC3pkDU2wQcPXQ'; // Replace with your actual API key
+            $from = 'TIARACONECT';
+            $message = 'Your appointment has been ' . $appointmentStatus .'. Thanks for being part of our services';
+
+          
+            sendSMS($endpoint, $apiKey, $phone, $from, $message);
+        }
+
     } else {
         $errorMsg = "Error updating appointment: " . $conn->error;
     }
 
-    // Close the statement
     $stmt->close();
+    $patientStmt->close();
 }
+function sendSMS($endpoint, $apiKey, $to, $from, $message) {
+    
+    $request = [
+        'to' => $to,
+        'from' => $from,
+        'message' => $message
+    ];
+    $requestBody = json_encode($request);
 
+    
+    error_log("Sending SMS to $to with message: $message");
+
+    
+    $curl = curl_init();
+    curl_setopt_array($curl, [
+        CURLOPT_URL => $endpoint,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => $requestBody,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $apiKey
+        ],
+    ]);
+
+    
+    $response_body = curl_exec($curl);
+    $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+    
+    if ($response_body === false) {
+        error_log('cURL Error: ' . curl_error($curl));
+        return false; 
+    } 
+    
+    
+    if ($http_status !== 200) {
+        error_log('HTTP Error ' . $http_status . ': ' . $response_body);
+        return false; 
+    } 
+    
+    
+    error_log("SMS sent successfully to $to: " . $response_body);
+    return true; 
+}
 // Prepare the SQL statement to get appointments
 $stmt = $conn->prepare("
     SELECT a.AppointmentID, a.AppointmentDate, a.CreatedAt, a.Status, p.firstname, p.PatientID
@@ -86,6 +148,9 @@ $conn->close();
         }
         .container {
             padding: 20px;
+            margin: 0;
+            max-width: 100%;
+            flex-grow: 1;
         }
         .card {
             margin-bottom: 20px;

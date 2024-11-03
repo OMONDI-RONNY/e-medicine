@@ -1,20 +1,20 @@
 <?php
-session_start(); // Start the session
+session_start();
 
-// Set session timestamp if not already set
+
 if (!isset($_SESSION['start_time'])) {
-    $_SESSION['start_time'] = date('H:i'); // Only time
+    $_SESSION['start_time'] = date('H:i'); 
 }
 
-// Load the JSON dataset
-$jsonData = file_get_contents('symptoms_data.json'); // Ensure this file path is correct
+
+$jsonData = file_get_contents('symptoms_data.json'); 
 $symptomData = json_decode($jsonData, true);
 
-// Function to find the best possible diagnosis based on user input
+
 function findBestDiagnosis($inputSymptoms, $data) {
-    // Convert user input into lowercase and split into individual words (keywords)
+    
     $symptomsArray = explode(' ', strtolower($inputSymptoms));
-    $symptomsArray = array_map('trim', $symptomsArray); // Trim whitespaces
+    $symptomsArray = array_map('trim', $symptomsArray); 
 
     $bestDiagnosis = null;
     $bestMatchCount = 0;
@@ -23,40 +23,40 @@ function findBestDiagnosis($inputSymptoms, $data) {
         $matchCount = 0;
 
         foreach ($symptomsArray as $inputSymptom) {
-            // Match if the symptom in the dataset contains the exact keyword from user input
+            
             if (strpos(strtolower($symptom['symptom']), $inputSymptom) !== false) {
                 $matchCount++;
             }
         }
 
-        // If this diagnosis matches more symptoms, it becomes the best diagnosis
+        
         if ($matchCount > $bestMatchCount) {
             $bestMatchCount = $matchCount;
             $bestDiagnosis = $symptom;
         }
     }
 
-    return $bestDiagnosis; // Return the best found diagnosis
+    return $bestDiagnosis;
 }
 
-// Initialize chat history in session if not already set
+
 if (!isset($_SESSION['chat_history'])) {
     $_SESSION['chat_history'] = [];
 }
 
-// Handle chat input or clearing history
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['clear_history'])) {
-        // Clear the chat history if the clear button is pressed
+        
         $_SESSION['chat_history'] = [];
-        $_SESSION['start_time'] = date('H:i'); // Reset the session start time to only time
+        $_SESSION['start_time'] = date('H:i'); 
     } else {
-        // Handle symptom input from the user
+        
         $userInput = trim($_POST['symptom']);
         $diagnosis = findBestDiagnosis($userInput, $symptomData);
-        $timestamp = date('H:i'); // Initial timestamp when the message is sent
+        $timestamp = date('H:i'); 
 
-        // Store user input and bot response in session history
+       
         $_SESSION['chat_history'][] = [
             'user' => [
                 'message' => htmlspecialchars($userInput),
@@ -88,27 +88,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .dashboard-container {
-            display: flex; /* Enable flexbox for the container */
-            max-width: 100%; /* Allow full width of the viewport */
+            display: flex; 
+            max-width: 100%; 
             padding: 20px;
         }
 
         .sidebar {
-            width: 250px; /* Set width for the sidebar */
-            background-color: #fff; /* Background for the sidebar */
-            padding: 20px; /* Padding for the sidebar */
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Sidebar shadow */
-            margin-left: 0; /* Remove left margin */
+            width: 250px; 
+            background-color: #fff;
+            padding: 20px; 
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); 
+            margin-left: 0; 
             margin-top: 0;
         }
 
         .chat-container {
-            flex: 1; /* Take up remaining space */
+            flex: 1; 
             padding: 20px;
             background-color: #fff;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-            margin-left: 0; /* Set margin-left to 0 */
-            max-width: 100%; /* Ensure full width */
+            margin-left: 0; 
+            max-width: 100%; 
         }
 
         .chat-box {
@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-left: 20%;
             margin-right: 0;
             float: right;
-            border-top-left-radius: 0; /* Remove top left corner rounding */
+            border-top-left-radius: 0; 
         }
 
         .bot-message {
@@ -149,7 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-right: 20%;
             margin-left: 0;
             float: left;
-            border-top-right-radius: 0; /* Remove top right corner rounding */
         }
 
         .form-control {
@@ -206,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         .bot-icon {
             left: -40px;
-            background-color: #e1f5fe; /* Softer color for bot icon */
+            background-color: #e1f5fe;
         }
 
         .user-icon {
@@ -214,18 +213,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     </style>
     <script>
-        // Function to scroll the chat box to the bottom
+        
         function scrollToBottom() {
             const chatBox = document.getElementById('chatBox');
-            chatBox.scrollTop = chatBox.scrollHeight; // Always scroll to the bottom
+            chatBox.scrollTop = chatBox.scrollHeight; 
         }
 
-        // Call to scroll after loading the chat history
+        
         document.addEventListener('DOMContentLoaded', function() {
-            scrollToBottom(); // Initial scroll to the bottom when the page loads
+            scrollToBottom(); 
         });
 
-        // Automatically scroll to the bottom when new messages are added
+       
         const chatBox = document.getElementById('chatBox');
         const observer = new MutationObserver(scrollToBottom);
         observer.observe(chatBox, { childList: true, subtree: true });
@@ -234,17 +233,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 
 <body>
-    <?php include '../resources/includes/p_header.php'; ?> <!-- Include the header file -->
+    <?php include '../resources/includes/p_header.php'; ?>
     
     <div class="dashboard-container">
-        <?php include 'sidebar.php'; ?> <!-- Include the sidebar file -->
+        <?php include 'sidebar.php'; ?> 
 
         <div class="chat-container">
             <h2 class="text-center">Online Doctor Chatbot</h2>
             <div class="chat-box" id="chatBox">
                 <p><strong>Session started at:</strong> <?php echo $_SESSION['start_time']; ?></p>
                 <?php
-                // Display chat history
+              
                 foreach ($_SESSION['chat_history'] as $chat) {
                     echo '<div class="message user-message"><div class="message-icon user-icon">U</div><strong>You:</strong> ' . $chat['user']['message'] . '<br><span class="timestamp">' . $chat['user']['timestamp'] . '</span></div>';
                     if ($chat['bot']) {
@@ -257,7 +256,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ?>
             </div>
 
-            <!-- Move disclaimer here -->
+           
             <div class="disclaimer">
                 <strong>Note:</strong> This chatbot is not a substitute for professional medical advice. Always consult a healthcare provider for accurate diagnosis and treatment.
             </div>
@@ -267,7 +266,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <button type="submit" class="btn btn-primary btn-block">Check Symptoms</button>
             </form>
 
-            <!-- Clear chat history button -->
+            
             <form method="POST" action="">
                 <input type="hidden" name="clear_history" value="1">
                 <button type="submit" class="btn btn-danger btn-block clear-btn">Clear Chat History</button>
@@ -275,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 
-    <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
+    <?php include '../resources/includes/footer.php'; ?>
 </body>
 
 </html>
