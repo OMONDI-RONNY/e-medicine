@@ -36,6 +36,7 @@ $totalRow = $totalResult->fetch_assoc();
 $totalPrescriptions = $totalRow['total'];
 $totalPages = ceil($totalPrescriptions / $limit);
 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['edit'])) {
         
@@ -95,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
         }
 
-      
+        
         .container {
             padding: 20px;
             margin: 0;
@@ -141,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #0056b3;
         }
 
-        
+        /* Table set to full width */
         .prescriptions-table table {
             width: 100%;
             border-collapse: collapse;
@@ -206,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php include 'header.php'; ?> 
     <div class="dashboard">
-        <?php include 'sidebar.php'; ?>
+        <?php include 'sidebar.php'; ?> 
 
         <div class="container">
             <div class="page-header">
@@ -253,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
             </div>
 
-          
+            
             <?php if ($totalPages > 1): ?>
             <nav aria-label="Page navigation">
                 <ul class="pagination">
@@ -298,7 +299,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-  
+   
     <div class="modal fade" id="deletePrescriptionModal" tabindex="-1" role="dialog" aria-labelledby="deletePrescriptionModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -322,7 +323,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-       
+     
         document.getElementById('searchInput').addEventListener('keyup', function() {
             var filter = this.value.toLowerCase();
             var rows = document.querySelectorAll('#prescriptionTableBody tr');
@@ -337,9 +338,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
                 row.style.display = found ? '' : 'none'; 
+            });
         });
 
-        
+       
         $('#editPrescriptionModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
             var prescriptionID = button.data('id');
