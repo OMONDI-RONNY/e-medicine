@@ -374,6 +374,7 @@ $total_pages = ceil($total_patients_count / $limit);
         </div>
     </div>
 </div>
+<?php include '../resources/includes/footer.php'; ?>
 
     <script>
     document.getElementById('searchInput').addEventListener('keyup', function() {

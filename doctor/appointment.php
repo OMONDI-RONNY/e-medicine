@@ -395,6 +395,7 @@ foreach ($appointments as $appointment): ?>
         </div>
     </div>
 </div>
+<?php include '../resources/includes/footer.php'; ?>
 
 
 

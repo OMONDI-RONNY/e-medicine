@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+
 include '../access/config.php'; 
 if (!isset($_SESSION['username'])) {
    
@@ -167,13 +168,14 @@ $records = mysqli_fetch_all($result, MYSQLI_ASSOC);
             }
         }
     
-    </styl>
+    </style>
 </head>
 
 <body>
 
-    <?php include 'header.php'; ?> <!-- Include the header file -->
+<?php include 'header.php'; ?>
     <div class="dashboard">
+   
         <?php include 'sidebar.php'; ?> <!-- Include the sidebar file -->
 
         <div class="container">
@@ -258,18 +260,7 @@ $records = mysqli_fetch_all($result, MYSQLI_ASSOC);
                                     <input type="text" class="form-control" name="result" required>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <!--<button type="submit" class="btn btn-primary">Add Result</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
+                            
     <?php include '../resources/includes/footer.php'; ?> <!-- Include the footer file -->
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

@@ -264,5 +264,6 @@ $conn->close();
         </div>
     </div>
 </div>
+<?php include '../resources/includes/footer.php'; ?>
 </body>
 </html>
