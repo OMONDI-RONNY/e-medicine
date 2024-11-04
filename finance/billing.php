@@ -131,9 +131,7 @@ if (!$result) {
             </div>
         </div>
 
-        <div class="mb-3">
-            <a href="add_billing.php" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Billing Record</a>
-        </div>
+        
     </div>
 
     <!-- View Modal -->

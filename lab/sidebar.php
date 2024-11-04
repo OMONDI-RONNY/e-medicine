@@ -12,9 +12,7 @@
             <a class="nav-link" href="patient.php"><i class="fas fa-user-md"></i> Patients</a>
         </li>
         
-        <li class="nav-item">
-            <a class="nav-link" href="#"><i class="fas fa-cog"></i> Settings</a>
-        </li>
+        
         <li class="nav-item">
             <a class="nav-link" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </li>

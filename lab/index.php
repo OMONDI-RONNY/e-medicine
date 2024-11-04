@@ -178,11 +178,6 @@ $conn->close();
     </tbody>
 </table>
 
-                        <div class="text-right mt-3">
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#addTestModal">
-                                <i class="fas fa-plus"></i> Add Test Result
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>

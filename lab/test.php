@@ -8,13 +8,37 @@ if (!isset($_SESSION['lab_user'])) {
     exit();
 }
 
+// Check if the form was submitted for updating
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_test_result'])) {
+    $labId = (int)$_POST['lab_id']; // Get LabID from the POST request
+    $testName = $conn->real_escape_string($_POST['test_name']);
+    $symptoms = $conn->real_escape_string($_POST['symptoms']);
+    $result = $conn->real_escape_string($_POST['result']);
+
+    // Update query to modify the existing test result using LabID
+    $updateQuery = "UPDATE laboratory SET TestName = '$testName', Symptoms = '$symptoms', Result = '$result', UpdatedAt = NOW() 
+                    WHERE LabID = '$labId'";
+    
+    try {
+        if ($conn->query($updateQuery) === TRUE) {
+            echo "<script>alert('Test result updated successfully!'); window.location.href='test.php';</script>";
+        } else {
+            throw new Exception("Error updating record: " . $conn->error);
+        }
+    } catch (Exception $e) {
+        // Redirect with error message
+        $_SESSION['error_message'] = $e->getMessage();
+        header('Location: test.php');
+        exit();
+    }
+}
+
 // Function to fetch patient test results
 function getPatientTestResults($conn) {
     $results = [];
-    $query = "SELECT p.firstname, p.lastname, l.TestName, l.TestDate, l.Result 
-              FROM laboratory l 
-              JOIN patients p ON l.PatientID = p.PatientID 
-              ORDER BY l.TestDate DESC";
+    $query = "SELECT LabID, PatientID, TestName, TestDate, Result, Symptoms 
+              FROM laboratory 
+              ORDER BY TestDate DESC";
     
     $result = $conn->query($query);
     
@@ -23,24 +47,6 @@ function getPatientTestResults($conn) {
     }
     
     return $results;
-}
-
-// Handle form submission to add a new test result
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['patient_id'], $_POST['test_name'], $_POST['symptoms'], $_POST['result'])) {
-    $patientId = (int)$_POST['patient_id'];
-    $testName = $conn->real_escape_string($_POST['test_name']);
-    $symptoms = $conn->real_escape_string($_POST['symptoms']);
-    $result = $conn->real_escape_string($_POST['result']);
-
-    // Insert new test result for the specified patient
-    $query = "INSERT INTO laboratory (PatientID, TestName, Symptoms, Result, TestDate, CreatedAt)
-              VALUES ('$patientId', '$testName', '$symptoms', '$result', NOW(), NOW())";
-    
-    if ($conn->query($query) === TRUE) {
-        echo "<script>alert('New test result added successfully!'); window.location.href='test_results.php';</script>";
-    } else {
-        echo "<script>alert('Error: " . $conn->error . "');</script>";
-    }
 }
 
 $testResults = getPatientTestResults($conn);
@@ -127,7 +133,8 @@ $conn->close();
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Patient Name</th>
+                            <th>Lab ID</th>
+                            <th>Patient ID</th>
                             <th>Test</th>
                             <th>Date</th>
                             <th>Result</th>
@@ -137,71 +144,97 @@ $conn->close();
                     <tbody>
                         <?php foreach ($testResults as $result): ?>
                             <tr>
-                                <td><?php echo $result['firstname'] . ' ' . $result['lastname']; ?></td>
+                                <td><?php echo $result['LabID']; ?></td>
+                                <td><?php echo $result['PatientID']; ?></td>
                                 <td><?php echo $result['TestName']; ?></td>
                                 <td><?php echo date('Y-m-d', strtotime($result['TestDate'])); ?></td>
                                 <td><?php echo $result['Result'] ? $result['Result'] : 'Pending'; ?></td>
                                 <td>
-                                    <button class="btn btn-info btn-sm">
+                                    <button class="btn btn-info btn-sm" onclick="openViewModal('<?php echo $result['TestName']; ?>', '<?php echo $result['TestDate']; ?>', '<?php echo $result['Result']; ?>', '<?php echo $result['Symptoms']; ?>')">
                                         <i class="fas fa-eye"></i> View
                                     </button>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
+                                    
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-                <div class="text-right mt-3">
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#addTestModal">
-                        <i class="fas fa-plus"></i> Add Test Result
+            </div>
+        </div>
+    </div>
+
+    <!-- View Modal -->
+    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalLabel">View Test Result</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
                     </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Test Name:</strong> <span id="viewTestName"></span></p>
+                    <p><strong>Test Date:</strong> <span id="viewTestDate"></span></p>
+                    <p><strong>Symptoms:</strong> <span id="viewSymptoms"></span></p>
+                    <p><strong>Result:</strong> <span id="viewResult"></span></p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Test Modal -->
-    <div class="modal fade" id="addTestModal" tabindex="-1" role="dialog" aria-labelledby="addTestModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addTestModalLabel">Add Test Result</h5>
+                    <h5 class="modal-title" id="editModalLabel">Edit Test Result</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="test_results.php" method="POST">
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form action="test.php" method="POST">
+                        <input type="hidden" id="editLabId" name="lab_id"> <!-- Include LabID in the form -->
+                        <input type="hidden" name="update_test_result" value="1">
                         <div class="form-group">
-                            <label for="patientId">Patient ID</label>
-                            <input type="number" class="form-control" id="patientId" name="patient_id" required>
+                            <label for="editTestName">Test Name</label>
+                            <input type="text" class="form-control" id="editTestName" name="test_name" required>
                         </div>
                         <div class="form-group">
-                            <label for="testName">Test Name</label>
-                            <input type="text" class="form-control" id="testName" name="test_name" required>
+                            <label for="editSymptoms">Symptoms</label>
+                            <input type="text" class="form-control" id="editSymptoms" name="symptoms" required>
                         </div>
                         <div class="form-group">
-                            <label for="symptoms">Symptoms</label>
-                            <input type="text" class="form-control" id="symptoms" name="symptoms" required>
+                            <label for="editResult">Result</label>
+                            <input type="text" class="form-control" id="editResult" name="result" required>
                         </div>
-                        <div class="form-group">
-                            <label for="result">Result</label>
-                            <input type="text" class="form-control" id="result" name="result" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    </div>
-                </form>
+                        <button type="submit" class="btn btn-primary">Update Result</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function openViewModal(testName, testDate, result, symptoms) {
+            document.getElementById('viewTestName').textContent = testName;
+            document.getElementById('viewTestDate').textContent = testDate;
+            document.getElementById('viewSymptoms').textContent = symptoms;
+            document.getElementById('viewResult').textContent = result;
+            $('#viewModal').modal('show');
+        }
+
+        function openEditModal(labId, testName, symptoms, result) {
+            document.getElementById('editLabId').value = labId; // Set LabID in edit modal
+            document.getElementById('editTestName').value = testName;
+            document.getElementById('editSymptoms').value = symptoms;
+            document.getElementById('editResult').value = result;
+            $('#editModal').modal('show');
+        }
+    </script>
 </body>
 </html>

@@ -99,9 +99,7 @@ if ($result) {
             </div>
         </div>
 
-        <div class="mb-3">
-            <a href="add_balance.php" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Balance</a>
-        </div>
+        
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
