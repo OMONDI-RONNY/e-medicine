@@ -69,12 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = $_POST['phone'] ?? null;
     $status = $_POST['status'];
     $role = $_POST['role'];
-    $password = generateRandomPassword();
 
     if (isset($_POST['id']) && !empty($_POST['id'])) {
         // Editing existing user
         $id = $_POST['id'];
-        if ($role === 'Patient') {
+        $type = $_POST['type']; // Get the user type here
+
+        if ($type === 'Patient') {
             $update_sql = "UPDATE patients SET firstname=?, email=?, phone=?, status=? WHERE PatientID=?";
             $stmt = $conn->prepare($update_sql);
             $stmt->bind_param("ssssi", $name, $email, $phone, $status, $id);
@@ -419,7 +420,7 @@ if (isset($_GET['delete'])) {
                 <div class="modal-body">
                     <form id="editUserForm" method="POST">
                         <input type="hidden" name="id" id="editUserId">
-                        <input type="hidden" name="type" id="editUserType">
+                        <input type="hidden" name="type" id="editUser Type">
                         <div class="form-group">
                             <label for="editName">Name</label>
                             <input type="text" class="form-control" name="name" id="editUserName" required>
@@ -454,6 +455,7 @@ if (isset($_GET['delete'])) {
             document.getElementById('editUserName').value = name;
             document.getElementById('editUserEmail').value = email;
             document.getElementById('editUserStatus').value = status;
+            document.getElementById('editUser Type').value = type;
             document.getElementById('editUserType').value = type;
         }
 
