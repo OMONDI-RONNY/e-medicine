@@ -9,6 +9,6 @@ unset($_SESSION['username']);
 session_destroy();
 
 // Redirect to the finance login page
-header("Location: login.php");
+header("Location: ../index.php");
 exit();
 ?>
